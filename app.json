@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Fit App",
+    "slug": "fitapp",
+    "plugins": [
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "PORTRAIT"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "dab09152-d9e7-4d69-82be-461b5054c4d4"
+      }
+    },
+    "android": {
+      "package": "com.dakkee.fitapp"
+    }
+  }
+}
