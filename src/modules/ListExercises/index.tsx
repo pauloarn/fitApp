@@ -60,8 +60,16 @@ const ListExercises = ({ route }: ListExercisesProps) => {
     const auxList = listaExercicios.filter((ex) => {
       const incluso: Boolean[] = []
       if (searchForm.muscleName.length > 0) {
-        incluso.push(ex.nomeExercicio.includes(searchForm.muscleName))
-        incluso.push(ex.exerciseName.includes(searchForm.muscleName))
+        incluso.push(
+          ex.nomeExercicio
+            .toUpperCase()
+            .indexOf(searchForm.muscleName.toUpperCase()) !== -1
+        )
+        incluso.push(
+          ex.exerciseName
+            .toUpperCase()
+            .indexOf(searchForm.muscleName.toUpperCase()) !== -1
+        )
       }
       if (searchForm.tipoTreino) {
         incluso.push(ex.exerciseType === searchForm.tipoTreino.value)
