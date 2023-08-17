@@ -4,11 +4,16 @@ import { NavigationContainer } from '@react-navigation/native'
 import Home from './modules/Home'
 import SplashScreen from './modules/SplashScreen'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import Login from './modules/Login'
 
 const screens: BaseScreens<RootRouter>[] = [
   {
     path: 'SplashScreen',
     component: SplashScreen
+  },
+  {
+    path: 'LoginScreen',
+    component: Login
   },
   {
     path: 'MainRouter',

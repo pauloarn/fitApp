@@ -1,3 +1,5 @@
+import { ServerCodeType } from './serverCodes'
+
 export type ObjectKeys<T> = {
   [K in keyof T]: T[K] extends () => any ? never : K
 }[keyof T]
@@ -12,3 +14,20 @@ export type AllowedNames<Base, Condition> = FilterFlags<
   Base,
   Condition
 >[keyof Base]
+
+export type ServerData<T> = ServerDataSuccess<T> | ServerDataError
+
+export interface ServerDataCommon {
+  statusCode: number
+  messageCode: ServerCodeType
+  message: string
+}
+
+export interface ServerDataSuccess<T> extends ServerDataCommon {
+  success: true
+  body: T
+}
+export interface ServerDataError extends ServerDataCommon {
+  success: false
+  body: Null<any>
+}

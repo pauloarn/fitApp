@@ -1,73 +1,72 @@
 import { Text, View } from 'react-native'
 import styles from './styles'
 import { useAppDispatch } from '../../hooks/useRedux'
-import exercicios from '../../data/baseExercicios.json'
+import { useNavigation } from '@react-navigation/core'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RootRouter } from '../../types/routes'
+import ExercicioService from '../../database/services/ExercicioService'
+import { useEffect } from 'react'
+import bodyPartService from '../../services/bodyPart/bodyPartService'
+import exerciseTypeService from '../../services/exerciseType/exerciseTypeService'
+import equipmentTypeService from '../../services/equipmentType/equipmentTypeService'
 import {
   setGrupoMuscular,
   setTipoEquipamento,
   setTipoTreino
 } from '../../redux/slices/exercisesSlice'
-import { useNavigation } from '@react-navigation/core'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { RootRouter } from '../../types/routes'
-import { SelectOptions } from '../../components/DropDown/types'
-import ExercicioService from '../../database/services/ExercicioService'
-import { Exercicio } from '../../database/model/Exercicio'
-import { AllowedNames } from '../../types/genericTypes'
-import { capitalizeFirstLetter } from '../../helpers/string'
-import { useEffect } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import config from '../../utils/config'
 
 const SplashScreen = () => {
+  const { getBodyParts } = bodyPartService()
+  const { getExerciseTypes } = exerciseTypeService()
+  const { getEquipmentTypes } = equipmentTypeService()
   const dispatch = useAppDispatch()
   const { navigate } = useNavigation<NativeStackNavigationProp<RootRouter>>()
   const { adicionaVariosExercicios, getExercicios } = ExercicioService()
-  const initiate = async () => {
-    const ex = await getExercicios()
-    dispatch(setGrupoMuscular(getListFromExercicio('bodyPart', 'parteCorpo')))
-    dispatch(
-      setTipoTreino(getListFromExercicio('exerciseType', 'tipoExercicio'))
-    )
-    dispatch(
-      setTipoEquipamento(
-        getListFromExercicio('equipmentType', 'tipoEquipamento')
-      )
-    )
-    if (ex.length === 0) {
-      await adicionaVariosExercicios(exercicios)
-    }
-    navigate('MainRouter')
-  }
 
-  const getListFromExercicio = (
-    valueKey: AllowedNames<Exercicio, string>,
-    labelKey: AllowedNames<Exercicio, string>
-  ) => {
-    const list: SelectOptions[] = []
-    exercicios.forEach((exe: Exercicio) => {
-      if (list.findIndex((a) => a.value === exe[valueKey]) === -1) {
-        if (exe[valueKey].length > 0) {
-          list.push({
-            value: exe[valueKey],
-            label: capitalizeFirstLetter(exe[labelKey])
-          })
+  const initiate = async () => {
+    Promise.all([getBodyParts(), getExerciseTypes(), getEquipmentTypes()]).then(
+      ([bodyPartsResponse, exerciseTypesResponse, equipmentTypesResponse]) => {
+        if (bodyPartsResponse.data) {
+          dispatch(
+            setGrupoMuscular(
+              bodyPartsResponse.data.map((bp) => {
+                return { value: bp.id, label: bp.nome }
+              })
+            )
+          )
+        }
+        if (exerciseTypesResponse.data) {
+          dispatch(
+            setTipoTreino(
+              bodyPartsResponse.data.map((bp) => {
+                return { value: bp.id, label: bp.nome }
+              })
+            )
+          )
+        }
+        if (equipmentTypesResponse.data) {
+          dispatch(
+            setTipoEquipamento(
+              bodyPartsResponse.data.map((bp) => {
+                return { value: bp.id, label: bp.nome }
+              })
+            )
+          )
         }
       }
-    })
-    return list.sort((a, b) => {
-      const nameA = a.label.toUpperCase()
-      const nameB = b.label.toUpperCase()
-      if (nameA < nameB) {
-        return -1
-      }
-      if (nameA > nameB) {
-        return 1
-      }
-      return 0
-    })
+    )
+    const token = await AsyncStorage.getItem(config.localStorageTokenName)
+    if (token) {
+      navigate('MainRouter')
+    } else {
+      navigate('LoginScreen')
+    }
   }
 
   useEffect(() => {
-    initiate().catch(console.log)
+    initiate()
   }, [])
 
   return (

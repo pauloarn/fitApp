@@ -7,6 +7,7 @@ import { Treino } from '../database/model/Treino'
 export type RootRouter = {
   SplashScreen: {}
   MainRouter: {}
+  LoginScreen: {}
 }
 
 export type TrainingRouter = {
