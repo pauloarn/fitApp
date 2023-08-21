@@ -1,12 +1,12 @@
 import { Text, TouchableOpacity, View } from 'react-native'
 import styles from './styles'
-import { Exercicio } from '../../../database/model/Exercicio'
+import { ListedExercise } from '../../../types/exercises'
 import GifComponent from '../../../components/GifComponent'
 
 interface ExerciseCardProps {
-  listaExercicios: Exercicio[]
-  exercise: Exercicio
-  onPress: (Exercicio) => void
+  listaExercicios: ListedExercise[]
+  exercise: ListedExercise
+  onPress: (exercicio: ListedExercise) => void
 }
 
 const ExerciseCard = ({
@@ -14,7 +14,9 @@ const ExerciseCard = ({
   onPress,
   listaExercicios
 }: ExerciseCardProps) => {
-  const selecionados = listaExercicios.filter((ex) => ex.id === exercise.id)
+  const selecionados = listaExercicios.filter(
+    (ex) => ex.exerciseId === exercise.exerciseId
+  )
   const isSelecionado = selecionados.length > 0
   return (
     <View style={styles.cardContainer}>
@@ -27,10 +29,10 @@ const ExerciseCard = ({
             alignItems: 'center'
           }}
         >
-          <GifComponent gifUrl={exercise.url} />
+          <GifComponent imageData={exercise.imageData} />
         </View>
         <View style={{ width: '60%' }}>
-          <Text style={{ textAlign: 'center' }}>{exercise.nomeExercicio}</Text>
+          <Text style={{ textAlign: 'center' }}>{exercise.name}</Text>
         </View>
       </TouchableOpacity>
     </View>

@@ -9,11 +9,11 @@ export interface CustomTextInputProps
   extends Omit<TextInputProps, 'onChangeText' | 'label'> {
   fieldLimit?: number
   pattern?: Pattern[] | string
-
+  isPassword?: boolean
   label?: string
   showLimitCounter?: boolean
   justNumber?: boolean
-  onChangeText: (texto: string) => void
+  onChangeText?: (texto: string) => void
 }
 
 const CustomTextInput = ({
@@ -21,6 +21,7 @@ const CustomTextInput = ({
   onChangeText,
   label,
   value,
+  isPassword,
   pattern,
   showLimitCounter = true,
   justNumber,
@@ -29,6 +30,8 @@ const CustomTextInput = ({
   const [textValue, setTextValue] = useState('')
   const lastPattern = useRef('')
   const lastValues = useRef(['', ''])
+
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const limitarTexto = (text: string) => {
     if (fieldLimit && text.length > fieldLimit) {
       return text.slice(0, fieldLimit)
@@ -108,6 +111,18 @@ const CustomTextInput = ({
         borderWidth: 1,
         borderBottomWidth: 1
       }}
+      secureTextEntry={isPassword && isPasswordVisible}
+      right={
+        isPassword && (
+          <TextInput.Icon
+            icon={isPasswordVisible ? 'eye' : 'eye-off'}
+            iconColor={'white'}
+            onPress={() => {
+              setIsPasswordVisible((prev) => !prev)
+            }}
+          />
+        )
+      }
       dense
       {...props}
       onChangeText={onChange}

@@ -28,8 +28,6 @@ interface Methods {
 }
 
 const makeService = <T>(path: string, func: (method: Methods) => T) => {
-  let defaultContext = config.pathApi
-  const defaultPath = path
   const mapParam = new Map<string, string>()
   let tempPath = path
 
@@ -37,13 +35,13 @@ const makeService = <T>(path: string, func: (method: Methods) => T) => {
     tempPath = path
   }
 
-  const getUrl = (path: string): string => {
+  const getUrl = (path: string, method: string): string => {
     let url = buildUrl(config.apiUrl, config.pathApi, tempPath, path)
 
     mapParam.forEach((value, key) => {
       url = url.replace(key, value)
     })
-
+    console.log(method, url)
     return url
   }
 
@@ -74,7 +72,7 @@ const makeService = <T>(path: string, func: (method: Methods) => T) => {
     const response = api.get<T>('', undefined, {
       ...axiosConfig,
       cancelToken: source.token,
-      baseURL: getUrl(path)
+      baseURL: getUrl(path, 'GET')
     })
 
     return {
@@ -92,7 +90,7 @@ const makeService = <T>(path: string, func: (method: Methods) => T) => {
     const response = api.post<T>('', data, {
       ...axiosConfig,
       cancelToken: source.token,
-      baseURL: getUrl(path)
+      baseURL: getUrl(path, 'POST')
     })
 
     return {
@@ -110,7 +108,7 @@ const makeService = <T>(path: string, func: (method: Methods) => T) => {
     const response = api.put<T>('', data, {
       ...axiosConfig,
       cancelToken: source.token,
-      baseURL: getUrl(path)
+      baseURL: getUrl(path, 'PUT')
     })
 
     return {
@@ -131,7 +129,7 @@ const makeService = <T>(path: string, func: (method: Methods) => T) => {
       {
         ...axiosConfig,
         cancelToken: source.token,
-        baseURL: getUrl(path)
+        baseURL: getUrl(path, 'DEL')
       }
     )
 

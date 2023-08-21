@@ -17,6 +17,18 @@ export type AllowedNames<Base, Condition> = FilterFlags<
 
 export type ServerData<T> = ServerDataSuccess<T> | ServerDataError
 
+export interface Pageable<T> {
+  content: T[]
+  totalPages: number
+  totalElements: number
+  last: boolean
+  size: number
+  number: number
+  first: boolean
+  sort: null
+  numberOfElements: number
+}
+
 export interface ServerDataCommon {
   statusCode: number
   messageCode: ServerCodeType

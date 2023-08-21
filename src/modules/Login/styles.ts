@@ -11,7 +11,7 @@ export default StyleSheet.create({
     width: wp('100%'),
     alignItems: 'center',
     flex: 1,
-    justifyContent: 'center'
+    paddingTop: wp('40%')
   },
   titleText: {
     color: 'white',
@@ -24,5 +24,11 @@ export default StyleSheet.create({
     width: wp('40%'),
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  loginButtonText: {
+    fontSize: 20,
+    padding: 0,
+    color: 'cyan',
+    fontWeight: 'bold'
   }
 })

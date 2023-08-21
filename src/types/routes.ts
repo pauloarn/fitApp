@@ -1,8 +1,8 @@
 import { Null, ObjectKeys } from './genericTypes'
 import * as React from 'react'
 import { NativeStackHeaderProps } from '@react-navigation/native-stack'
-import { Exercicio } from '../database/model/Exercicio'
 import { Treino } from '../database/model/Treino'
+import { ListedExercise } from './exercises'
 
 export type RootRouter = {
   SplashScreen: {}
@@ -17,7 +17,7 @@ export type TrainingRouter = {
 
   SelecionaExercicio: {
     vaiSelecionarExercicios: boolean
-    exerciciosTreino: Exercicio[]
+    exerciciosTreino: ListedExercise[]
   }
 
   DetalheTreino: {
@@ -33,7 +33,7 @@ export type RandomTrainingRouter = {
 
 export interface CreateTraningProps {
   treinoId: Null<string>
-  exercicios?: Exercicio[]
+  exercicios?: ListedExercise[]
 }
 
 export type TabsRouter = {

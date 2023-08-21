@@ -3,7 +3,7 @@ import { CategoriesResponse } from '../../types/categories'
 
 const equipmentTypeService = makeService('equipment-type', ({ get }) => {
   const getEquipmentTypes = () => {
-    const { response } = get<CategoriesResponse[]>('')
+    const { response } = get<{ body: CategoriesResponse[] }>('')
 
     return response.then((res) => res)
   }

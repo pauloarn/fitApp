@@ -3,11 +3,11 @@ import useStyles from './styles'
 import { Keyboard, Text, TouchableOpacity, View } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import DialogOptions from '../DialogOptions'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 interface IDropDownProps {
-  selectedValue: SelectOptions | null
-  onValueChange(selectedItem: SelectOptions | null): void
+  selectedValue: number | null
+  onValueChange(selectedItem: number | null): void
   label: string
   items: SelectOptions[]
 }
@@ -20,6 +20,20 @@ const DropDown = ({
 }: IDropDownProps) => {
   const styles = useStyles()
   const [isOpen, setIsOpen] = useState(false)
+
+  const getValueFromId = useCallback(() => {
+    const selected = items.findIndex((i) => i.value === selectedValue)
+    if (selected > -1) {
+      return items[selected]
+    }
+    return null
+  }, [selectedValue])
+
+  const selected = getValueFromId()
+
+  const handleSelectItem = (selectedValue: SelectOptions | null) => {
+    onValueChange(selectedValue ? selectedValue.value : null)
+  }
 
   const handleOpenModal = () => {
     Keyboard.dismiss()
@@ -34,9 +48,7 @@ const DropDown = ({
         </View>
       )}
       <TouchableOpacity style={styles.button} onPress={handleOpenModal}>
-        <Text style={styles.text}>
-          {selectedValue ? selectedValue.label : label}
-        </Text>
+        <Text style={styles.text}>{selected ? selected.label : label}</Text>
         <MaterialIcons
           name={'arrow-drop-down'}
           size={25}
@@ -50,7 +62,7 @@ const DropDown = ({
           isOpen={isOpen}
           title={label}
           items={items}
-          onValueChange={onValueChange}
+          onValueChange={handleSelectItem}
         />
       )}
     </View>

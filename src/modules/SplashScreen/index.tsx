@@ -31,7 +31,7 @@ const SplashScreen = () => {
         if (bodyPartsResponse.data) {
           dispatch(
             setGrupoMuscular(
-              bodyPartsResponse.data.map((bp) => {
+              bodyPartsResponse.data.body.map((bp) => {
                 return { value: bp.id, label: bp.nome }
               })
             )
@@ -40,7 +40,7 @@ const SplashScreen = () => {
         if (exerciseTypesResponse.data) {
           dispatch(
             setTipoTreino(
-              bodyPartsResponse.data.map((bp) => {
+              exerciseTypesResponse.data.body.map((bp) => {
                 return { value: bp.id, label: bp.nome }
               })
             )
@@ -49,7 +49,7 @@ const SplashScreen = () => {
         if (equipmentTypesResponse.data) {
           dispatch(
             setTipoEquipamento(
-              bodyPartsResponse.data.map((bp) => {
+              equipmentTypesResponse.data.body.map((bp) => {
                 return { value: bp.id, label: bp.nome }
               })
             )
@@ -59,9 +59,9 @@ const SplashScreen = () => {
     )
     const token = await AsyncStorage.getItem(config.localStorageTokenName)
     if (token) {
-      navigate('MainRouter')
+      navigate('MainRouter', {})
     } else {
-      navigate('LoginScreen')
+      navigate('LoginScreen', {})
     }
   }
 

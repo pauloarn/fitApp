@@ -1,9 +1,11 @@
 import { Image } from 'react-native'
+import { ListedExercise } from '../../types/exercises'
 
 interface GifComponentProps {
-  gifUrl: string
+  imageData: ListedExercise['imageData']
 }
-const GifComponent = ({ gifUrl }: GifComponentProps) => {
+const GifComponent = ({ imageData }: GifComponentProps) => {
+  const imageBase64 = `data:image/${imageData.imageType};base64,${imageData.imageBase64}`
   return (
     <Image
       style={{
@@ -12,7 +14,7 @@ const GifComponent = ({ gifUrl }: GifComponentProps) => {
         height: 90
       }}
       source={{
-        uri: gifUrl
+        uri: imageBase64
       }}
     />
   )

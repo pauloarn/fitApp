@@ -4,5 +4,7 @@ export interface CreateSessionRequest {
 }
 
 export interface CreateSessionResponse {
-  authToken: string
+  body: {
+    authToken: string
+  }
 }

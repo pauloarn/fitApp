@@ -4,7 +4,6 @@ import { FontAwesome5 } from '@expo/vector-icons'
 import React, { useState } from 'react'
 import styles from './styles'
 import DropDown from '../../../components/DropDown'
-import { SelectOptions } from '../../../components/DropDown/types'
 import { useAppSelector } from '../../../hooks/useRedux'
 import { Null } from '../../../types/genericTypes'
 import StyledCustomTextInput from '../../../components/StyledCustomTextInput'
@@ -12,9 +11,9 @@ import Divider from '../../../components/Divider'
 
 export interface SearchFilterForm {
   muscleName: string
-  muscleGroup: Null<SelectOptions>
-  tipoTreino: Null<SelectOptions>
-  tipoEquipamento: Null<SelectOptions>
+  muscleGroup: Null<number>
+  tipoTreino: Null<number>
+  tipoEquipamento: Null<number>
 }
 
 interface SearchAreaProps {
@@ -25,12 +24,12 @@ const SearchArea = ({ handleSearch }: SearchAreaProps) => {
   const [searchText, setSearchText] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [grupoMuscularSelecionado, setGrupoMuscularSelecionado] =
-    useState<SelectOptions>(null)
+    useState<Null<number>>(null)
   const [tipoEquipamentoSelecionado, setTipoEquipamentoSelecionado] =
-    useState<SelectOptions>(null)
+    useState<Null<number>>(null)
 
   const [tipoTreinoSelecionado, setTipoTreinoSelecionado] =
-    useState<SelectOptions>(null)
+    useState<Null<number>>(null)
   const ref = React.createRef<View>()
   const { grupoMuscular, tipoTreino, tipoEquipamento } = useAppSelector(
     (state) => state.exercisesSlice
