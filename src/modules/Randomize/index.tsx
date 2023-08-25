@@ -10,6 +10,7 @@ const screens: BaseScreens<RandomTrainingRouter>[] = [
   },
   {
     path: 'Visualizar',
+    // @ts-ignore
     component: TreinoDetalhe
   }
 ]

@@ -1,7 +1,6 @@
 import { Null, ObjectKeys } from './genericTypes'
 import * as React from 'react'
 import { NativeStackHeaderProps } from '@react-navigation/native-stack'
-import { Treino } from '../database/model/Treino'
 import { ListedExercise } from './exercises'
 
 export type RootRouter = {
@@ -28,7 +27,7 @@ export type TrainingRouter = {
 export type RandomTrainingRouter = {
   Generate: {}
 
-  Visualizar: { treinoGerado: Treino }
+  Visualizar: { treinoId: number }
 }
 
 export interface CreateTraningProps {

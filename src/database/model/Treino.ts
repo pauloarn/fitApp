@@ -3,7 +3,6 @@ import { ExercicioTreinoConfig } from './ExercicioTreinoConfig'
 export interface Treino {
   id: string
   nome: string
-
   treinoSet: TreinoSet
   exercicios: ExercicioTreinoConfig[]
 }

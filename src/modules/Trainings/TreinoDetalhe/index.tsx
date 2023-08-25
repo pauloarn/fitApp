@@ -15,16 +15,17 @@ import ExercicioTreino from './ExercicioTreino'
 import { ExercicioTreinoExecutado } from '../../../database/model/ExercicioTreinoConfig'
 import React, { useEffect, useState } from 'react'
 import { Treino } from '../../../database/model/Treino'
-import TreinoService from '../../../database/services/TreinoService'
 import AnotacoesArea from './AnotacoesArea'
 import Divider from '../../../components/Divider'
+import useExerciseRoutineService from '../../../services/exerciseRoutine/exerciseRoutineService'
 
 interface TreinoDetalheProps {
   route: RouteProp<TrainingRouter>
 }
 const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
-  const { treinoId } = route.params as TrainingRouter['DetalheTreino']
-  const { treinoGerado } = route.params as RandomTrainingRouter['Visualizar']
+  const { treinoId: treinoHehe } =
+    route.params as TrainingRouter['DetalheTreino']
+  const { treinoId } = route.params as RandomTrainingRouter['Visualizar']
   const [isObservacaoAreaOpen, setIsObservacaoAreaOpen] = useState(false)
   const [salvouTreino, setSalvouTreino] = useState(false)
   const [treino, setTreino] = useState<Treino>()
@@ -34,34 +35,22 @@ const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
   const { goBack } = useNavigation<NativeStackNavigationProp<TrainingRouter>>()
   const { goBack: goBackRandom } =
     useNavigation<NativeStackNavigationProp<RandomTrainingRouter>>()
-  const { encontraTreinoPorId, adicionaTreino } = TreinoService()
-
-  useEffect(() => {
-    if (treinoGerado) {
-      setTreino(treinoGerado)
-      setExerciciosTreino(
-        treinoGerado.exercicios.map((ex) => {
-          return {
-            ...ex,
-            executou: false
-          }
-        })
-      )
-    }
-  }, [treinoGerado])
+  const { getExerciseRoutine } = useExerciseRoutineService()
 
   useEffect(() => {
     if (treinoId) {
-      encontraTreinoPorId(treinoId).then((treino) => {
-        setTreino(treino)
-        setExerciciosTreino(
-          treino.exercicios.map((ex) => {
-            return {
-              ...ex,
-              executou: false
-            }
-          })
-        )
+      getExerciseRoutine(treinoId).then((res) => {
+        if (res.data?.body) {
+          setTreino(treino)
+          setExerciciosTreino(
+            treino.exercicios.map((ex) => {
+              return {
+                ...ex,
+                executou: false
+              }
+            })
+          )
+        }
       })
     }
   }, [treinoId])
