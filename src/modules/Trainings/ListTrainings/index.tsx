@@ -1,17 +1,18 @@
-import { FlatList, Text, View } from 'react-native'
+import { ActivityIndicator, FlatList, Text, View } from 'react-native'
 import styles from './styles'
-import { Treino } from '../../../database/model/Treino'
 import ListaVaziaText from '../../../components/ListaVaziaText'
 import FloatingActionButton from '../../../components/FloatingActionButton'
 import { useNavigation } from '@react-navigation/core'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootRouter, TrainingRouter } from '../../../types/routes'
 import { useState } from 'react'
-import TreinoService from '../../../database/services/TreinoService'
 import TreinoItems from './TreinoItems'
 import { useAppDispatch } from '../../../hooks/useRedux'
 import { setTituloTreinoEdit } from '../../../redux/slices/treinoSlice'
 import { setIsModalOpen } from '../../../redux/slices/modalSlice'
+import useExerciseRoutineService from '../../../services/exerciseRoutine/exerciseRoutineService'
+import { ExerciseRoutineItem } from '../../../types/exerciseRoutine'
+import Toast from 'react-native-root-toast'
 
 const CreateTraining = () => {
   const { navigate } =
@@ -19,31 +20,46 @@ const CreateTraining = () => {
   const { addListener, isFocused } =
     useNavigation<NativeStackNavigationProp<RootRouter>>()
   const dispatch = useAppDispatch()
-  const [treinos, setTreinos] = useState<Treino[]>([])
-  const { getTreinos, removeTreino } = TreinoService()
-  addListener('focus', async () => {
+  const [treinos, setTreinos] = useState<ExerciseRoutineItem[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const { getAllRoutines, deleteRoutine } = useExerciseRoutineService()
+  addListener('focus', () => {
     if (isFocused()) {
-      setTreinos(await getTreinos())
+      handleLoadTreinos()
     }
   })
-  const handleEditaTreino = (treinoEdit: Treino) => {
+
+  const handleLoadTreinos = () => {
+    if (isLoading) {
+      return
+    }
+    setIsLoading(true)
+    setTreinos([])
+    getAllRoutines().then((res) => {
+      if (res.data?.body) {
+        setTreinos(res.data.body.content)
+      }
+      setIsLoading(false)
+    })
+  }
+  const handleEditaTreino = (treinoEdit: ExerciseRoutineItem) => {
     dispatch(setTituloTreinoEdit('Editar Treino'))
     setIsModalOpen(false)
-    navigate('CreateTraining', { treinoId: treinoEdit.id })
+    navigate('CreateTraining', { treinoId: treinoEdit.routineId.toString() })
   }
 
   const handleCriaTreino = () => {
     dispatch(setTituloTreinoEdit('Cadastrar Treino'))
     navigate('CreateTraining', { treinoId: null })
   }
-
-  const handleExluiTreino = async (treino: Treino) => {
-    await removeTreino(treino)
-    setTreinos(await getTreinos())
+  const handleOpenTreino = (treino: ExerciseRoutineItem) => {
+    navigate('DetalheTreino', { treinoId: treino.routineId.toString() })
   }
-
-  const handleOpenTreino = (treino: Treino) => {
-    navigate('DetalheTreino', { treinoId: treino.id })
+  const getListEmptyComponent = () => {
+    if (isLoading) {
+      return <ActivityIndicator size={20} />
+    }
+    return <ListaVaziaText text={'Nenhum exercício encontrado'} />
   }
 
   return (
@@ -51,20 +67,31 @@ const CreateTraining = () => {
       <View style={{ marginVertical: 5 }}>
         <Text style={{ color: 'white', fontSize: 25 }}>Treinos</Text>
       </View>
-      <FlatList<Treino>
+      <FlatList<ExerciseRoutineItem>
         data={treinos}
-        keyExtractor={(item) => item.id}
-        ListEmptyComponent={
-          <ListaVaziaText text={'Nenhum treino cadastrado'} />
+        keyExtractor={(item) => item.routineId.toString()}
+        ListEmptyComponent={getListEmptyComponent()}
+        ListFooterComponent={
+          isLoading && treinos.length > 0 ? (
+            <View style={{ paddingVertical: 10 }}>
+              <ActivityIndicator size={20} />
+            </View>
+          ) : undefined
         }
         style={{ width: '100%' }}
         renderItem={(e) => (
           <TreinoItems
             onClickTreino={handleOpenTreino}
-            key={e.item.id}
+            key={e.item.routineId}
             editaTreino={handleEditaTreino}
             treino={e.item}
-            excluiTreino={handleExluiTreino}
+            excluiTreino={(treino) => {
+              deleteRoutine(treino.routineId)
+              setTreinos((prev) =>
+                prev.filter((t) => t.routineId !== treino.routineId)
+              )
+              Toast.show('Treino removido com sucesso')
+            }}
           />
         )}
       />

@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   FlatList,
   SafeAreaView,
   Text,
@@ -8,16 +9,17 @@ import {
 import styles from './styles'
 import { RouteProp, useNavigation } from '@react-navigation/core'
 import { RandomTrainingRouter, TrainingRouter } from '../../../types/routes'
-import { widthPercentageToDP } from 'react-native-responsive-screen'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ListaVaziaText from '../../../components/ListaVaziaText'
 import ExercicioTreino from './ExercicioTreino'
-import { ExercicioTreinoExecutado } from '../../../database/model/ExercicioTreinoConfig'
 import React, { useEffect, useState } from 'react'
-import { Treino } from '../../../database/model/Treino'
 import AnotacoesArea from './AnotacoesArea'
 import Divider from '../../../components/Divider'
 import useExerciseRoutineService from '../../../services/exerciseRoutine/exerciseRoutineService'
+import {
+  ExerciseInRoutineExecution,
+  ExerciseRoutineDetailResponse
+} from '../../../types/exerciseRoutine'
 
 interface TreinoDetalheProps {
   route: RouteProp<TrainingRouter>
@@ -28,9 +30,9 @@ const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
   const { treinoId } = route.params as RandomTrainingRouter['Visualizar']
   const [isObservacaoAreaOpen, setIsObservacaoAreaOpen] = useState(false)
   const [salvouTreino, setSalvouTreino] = useState(false)
-  const [treino, setTreino] = useState<Treino>()
+  const [treino, setTreino] = useState<ExerciseRoutineDetailResponse>()
   const [exerciciosTreino, setExerciciosTreino] = useState<
-    ExercicioTreinoExecutado[]
+    ExerciseInRoutineExecution[]
   >([])
   const { goBack } = useNavigation<NativeStackNavigationProp<TrainingRouter>>()
   const { goBack: goBackRandom } =
@@ -41,12 +43,12 @@ const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
     if (treinoId) {
       getExerciseRoutine(treinoId).then((res) => {
         if (res.data?.body) {
-          setTreino(treino)
+          setTreino(res.data.body)
           setExerciciosTreino(
-            treino.exercicios.map((ex) => {
+            res.data.body.listRoutineExercise.map((ex) => {
               return {
                 ...ex,
-                executou: false
+                hasExecuted: false
               }
             })
           )
@@ -57,8 +59,9 @@ const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
 
   if (!treino) {
     return (
-      <View>
-        <Text>Carregando</Text>
+      <View style={{ ...styles.mainContainer, justifyContent: `center` }}>
+        <Text>Carregando Treino</Text>
+        <ActivityIndicator size={25} />
       </View>
     )
   }
@@ -72,28 +75,23 @@ const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
     goBackRandom()
   }
 
-  const handleSalvarTreino = async () => {
-    await adicionaTreino(treino)
-    setSalvouTreino(true)
-  }
-
   const getListHeight = () => {
     if (isObservacaoAreaOpen) {
       return '74%'
     }
-    if (treino.treinoSet?.observacao) {
+    if (treino.description.length > 0) {
       return '89%'
     }
     return '94%'
   }
 
-  const marcaExecicio = (exercicio: ExercicioTreinoExecutado) => {
+  const marcaExecicio = (exercicio: ExerciseInRoutineExecution) => {
     setExerciciosTreino((prev) =>
       prev.map((ex) => {
-        if (ex.id === exercicio.id) {
+        if (ex.routineExerciseId === exercicio.routineExerciseId) {
           return {
             ...ex,
-            executou: !ex.executou
+            hasExecuted: !ex.hasExecuted
           }
         }
         return ex
@@ -107,20 +105,13 @@ const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
         <TouchableOpacity onPress={handleGoBack}>
           <Text style={styles.textButton}>VOLTAR</Text>
         </TouchableOpacity>
-        <Text style={styles.headerText}>{treino.nome}</Text>
-        {treinoId || salvouTreino ? (
-          <View style={{ width: widthPercentageToDP('10%') }}></View>
-        ) : (
-          <TouchableOpacity onPress={handleSalvarTreino}>
-            <Text style={styles.textButton}>SALVAR</Text>
-          </TouchableOpacity>
-        )}
+        <Text style={styles.headerText}>{treino.routineName}</Text>
       </View>
-      {treino.treinoSet?.observacao && (
+      {treino.description.length > 0 && (
         <AnotacoesArea
           isObservacaoAreaOpen={isObservacaoAreaOpen}
           setIsObservacaoAreaOpen={setIsObservacaoAreaOpen}
-          observacao={treino.treinoSet.observacao}
+          observacao={treino.description}
         />
       )}
       <SafeAreaView
@@ -129,12 +120,12 @@ const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
           paddingVertical: '1%'
         }}
       >
-        <FlatList<ExercicioTreinoExecutado>
+        <FlatList<ExerciseInRoutineExecution>
           data={exerciciosTreino}
           numColumns={2}
           collapsable={true}
           ItemSeparatorComponent={() => <Divider y={1} />}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.routineExerciseId.toString()}
           ListEmptyComponent={
             <ListaVaziaText text={'Nenhum exercicio cadastrado neste treino'} />
           }
@@ -142,9 +133,9 @@ const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
           renderItem={(e) => (
             <ExercicioTreino
               executaExercicio={marcaExecicio}
-              key={e.item.id}
+              key={e.item.routineExerciseId}
               exercicio={e.item}
-              treino={treino.treinoSet}
+              treino={treino}
             />
           )}
         />

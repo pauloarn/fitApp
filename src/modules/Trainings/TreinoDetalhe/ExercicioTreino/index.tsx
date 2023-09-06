@@ -1,18 +1,20 @@
 import { Text, TouchableOpacity, View } from 'react-native'
-import { ExercicioTreinoExecutado } from '../../../../database/model/ExercicioTreinoConfig'
 import DataDisplayGrid, {
   FieldProps
 } from '../../../../components/DataDisplayGrid'
 import GifComponent from '../../../../components/GifComponent'
-import { Treino } from '../../../../database/model/Treino'
 import Divider from '../../../../components/Divider'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import styles from './styles'
+import {
+  ExerciseInRoutineExecution,
+  ExerciseRoutineDetailResponse
+} from '../../../../types/exerciseRoutine'
 
 interface ExercicioTreinoProps {
-  exercicio: ExercicioTreinoExecutado
-  executaExercicio: (exercicio: ExercicioTreinoExecutado) => void
-  treino: Treino['treinoSet']
+  exercicio: ExerciseInRoutineExecution
+  executaExercicio: (exercicio: ExerciseInRoutineExecution) => void
+  treino: ExerciseRoutineDetailResponse
 }
 const ExercicioTreino = ({
   exercicio,
@@ -23,15 +25,15 @@ const ExercicioTreino = ({
     const fields: FieldProps[] = [
       {
         label: 'Séries',
-        value: exercicio.exercicioSet?.series || treino?.series || 0
+        value: (exercicio.series ?? treino?.series) || 0
       },
       {
         label: 'Repetições',
-        value: exercicio.exercicioSet?.repeticoes || treino?.repeticoes || 0
+        value: (exercicio.repetitions ?? treino?.repetitions) || 0
       },
       {
         label: 'Carga',
-        value: `${exercicio.exercicioSet?.carga || 0} KG`
+        value: `${exercicio.exerciseWeight ?? 0} KG`
       }
     ]
     return fields
@@ -43,12 +45,12 @@ const ExercicioTreino = ({
       onPress={() => executaExercicio(exercicio)}
     >
       <View style={styles.gifContainer}>
-        <GifComponent gifUrl={exercicio.url} />
+        <GifComponent imageData={exercicio.execise.imageData} />
       </View>
       <View style={styles.marcouContainer}>
         <MaterialCommunityIcons
           name={
-            exercicio.executou ? 'checkbox-marked' : 'checkbox-blank-outline'
+            exercicio.hasExecuted ? 'checkbox-marked' : 'checkbox-blank-outline'
           }
           size={20}
           color={'white'}
@@ -56,13 +58,13 @@ const ExercicioTreino = ({
         <Divider x={2} />
         <View>
           <Text style={{ color: 'white' }}>
-            {exercicio.executou ? 'Finalizado' : 'Finalizou ?'}
+            {exercicio.hasExecuted ? 'Finalizado' : 'Finalizou ?'}
           </Text>
         </View>
       </View>
       <View>
         <Text style={{ fontSize: 15, textAlign: 'center' }}>
-          {exercicio.nomeExercicio}
+          {exercicio.execise.name}
         </Text>
       </View>
       <DataDisplayGrid fields={getFields()} numColunas={1} />

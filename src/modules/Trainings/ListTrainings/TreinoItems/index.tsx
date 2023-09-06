@@ -1,14 +1,14 @@
 import { Text, TouchableOpacity, View } from 'react-native'
-import { Treino } from '../../../../database/model/Treino'
 import styles from './styles'
 import { useState } from 'react'
 import { FontAwesome5 } from '@expo/vector-icons'
+import { ExerciseRoutineItem } from '../../../../types/exerciseRoutine'
 
 interface TreinoItemsProps {
-  treino: Treino
-  excluiTreino: (treino: Treino) => void
-  editaTreino: (treino: Treino) => void
-  onClickTreino: (treino: Treino) => void
+  treino: ExerciseRoutineItem
+  excluiTreino: (treino: ExerciseRoutineItem) => void
+  editaTreino: (treino: ExerciseRoutineItem) => void
+  onClickTreino: (treino: ExerciseRoutineItem) => void
 }
 
 const TreinoItems = ({
@@ -21,7 +21,7 @@ const TreinoItems = ({
   return (
     <TouchableOpacity style={styles.card} onPress={() => onClickTreino(treino)}>
       <View style={{ width: isMenuOpen ? '70%' : '90%' }}>
-        <Text>{treino.nome}</Text>
+        <Text>{treino.routineName}</Text>
       </View>
       <TouchableOpacity
         style={isMenuOpen ? styles.openMenuView : styles.closeMenuView}
