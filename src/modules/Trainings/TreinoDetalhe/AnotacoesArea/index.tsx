@@ -1,6 +1,7 @@
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import { FontAwesome5 } from '@expo/vector-icons'
 import React from 'react'
+import ConditionalRender from '../../../../components/ConditionalRender'
 
 interface AnotacoesAreaProps {
   isObservacaoAreaOpen: boolean
@@ -47,11 +48,11 @@ const AnotacoesArea = ({
           size={15}
         />
       </TouchableOpacity>
-      {isObservacaoAreaOpen && (
+      <ConditionalRender validation={isObservacaoAreaOpen}>
         <ScrollView>
           <Text>{observacao}</Text>
         </ScrollView>
-      )}
+      </ConditionalRender>
     </View>
   )
 }

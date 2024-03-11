@@ -6,19 +6,16 @@ import { StyleSheet } from 'react-native'
 
 export default StyleSheet.create({
   card: {
-    height: hp('15%'),
+    height: hp('10%'),
     width: wp('90%'),
-    backgroundColor: `white`,
     paddingHorizontal: wp('1%'),
     display: 'flex',
     flexDirection: 'row',
-    elevation: wp('1%'),
-    borderRadius: wp('2%'),
     alignItems: 'center',
     justifyContent: 'space-evenly',
-    marginTop: hp('1%'),
-    marginBottom: hp('1%'),
-    alignSelf: 'center'
+    alignSelf: 'center',
+    borderBottomColor: 'white',
+    borderBottomWidth: 1
   },
   cardContainer: {
     display: 'flex',

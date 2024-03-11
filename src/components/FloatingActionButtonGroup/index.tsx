@@ -1,11 +1,12 @@
 import { FAB } from 'react-native-paper'
-import { FontAwesome5 } from '@expo/vector-icons'
+import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
 import React, { useState } from 'react'
 import { Props } from 'react-native-paper/lib/typescript/components/FAB/FABGroup'
 import { defaults } from '../../defaults'
 
 interface ActionsProps {
   iconName: string
+  isFontAwesome?: boolean
   label?: string
   onPress: () => void
 }
@@ -28,9 +29,13 @@ const FloatingActionButtonGroup = ({
     actions.forEach((ac) => {
       actionsList.push({
         //@ts-ignore
-        icon: (a, b) => (
-          <FontAwesome5 name={ac.iconName} size={25} color={'white'} />
-        ),
+        icon: (a, b) => {
+          if (ac.isFontAwesome) {
+            //@ts-ignore
+            return <FontAwesome name={ac.iconName} size={25} color={'white'} />
+          }
+          return <FontAwesome5 name={ac.iconName} size={25} color={'white'} />
+        },
         style: {
           paddingLeft: 5,
           backgroundColor: defaults.corBotaoFab

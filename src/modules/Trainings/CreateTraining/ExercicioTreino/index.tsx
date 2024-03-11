@@ -2,16 +2,15 @@ import { Text, TouchableOpacity, View } from 'react-native'
 import styles from './styles'
 import { FontAwesome5 } from '@expo/vector-icons'
 import { useState } from 'react'
-import {
-  ExercicioSetup,
-  ExercicioTreinoConfig
-} from '../../../../database/model/ExercicioTreinoConfig'
+import { ExercicioSetup } from '../../../../database/model/ExercicioTreinoConfig'
 import EditaConfigTreinoDialog from './EditaConfigTreinoDialog'
+import { ExerciseInRoutine } from '../../../../types/exerciseRoutine'
+import ConditionalRender from '../../../../components/ConditionalRender'
 
 interface ExercicioTreinoProps {
-  exercicio: ExercicioTreinoConfig
-  excluiExercicio: (exercicio: ExercicioTreinoConfig) => void
-  handleEditExercicio: (exercicioId: string, exercicio: ExercicioSetup) => void
+  exercicio: ExerciseInRoutine
+  excluiExercicio: (exercicioId: number) => void
+  handleEditExercicio: (exercicioId: number, exercicio: ExercicioSetup) => void
 }
 const ExercicioTreino = ({
   exercicio,
@@ -23,7 +22,7 @@ const ExercicioTreino = ({
   return (
     <TouchableOpacity style={styles.card}>
       <View style={{ width: isMenuOpen ? '70%' : '90%' }}>
-        <Text>{exercicio.nomeExercicio}</Text>
+        <Text>{exercicio.execise.name}</Text>
       </View>
       <TouchableOpacity
         style={isMenuOpen ? styles.openMenuView : styles.closeMenuView}
@@ -31,28 +30,34 @@ const ExercicioTreino = ({
       >
         <FontAwesome5 name={'ellipsis-v'} />
       </TouchableOpacity>
-      {isMenuOpen && (
+      <ConditionalRender validation={isMenuOpen}>
         <TouchableOpacity
           onPress={() => setIsModalOpen(true)}
           style={styles.editView}
         >
           <FontAwesome5 name={'pen'} color={'white'} size={15} />
         </TouchableOpacity>
-      )}
-      {isMenuOpen && (
+      </ConditionalRender>
+      <ConditionalRender validation={isMenuOpen}>
         <TouchableOpacity
-          onPress={() => excluiExercicio(exercicio)}
+          onPress={() => excluiExercicio(exercicio.routineExerciseId)}
           style={styles.deleteView}
         >
           <FontAwesome5 name={'trash'} color={'white'} size={15} />
         </TouchableOpacity>
-      )}
+      </ConditionalRender>
       <EditaConfigTreinoDialog
         isOpen={isModalOpen}
-        exercicio={exercicio.exercicioSet}
-        nomeExercicio={exercicio.nomeExercicio}
+        exercicio={{
+          carga: exercicio.exerciseWeight,
+          series: exercicio.series,
+          repeticoes: exercicio.repetitions
+        }}
+        nomeExercicio={exercicio.execise.nome}
         handleClose={() => setIsModalOpen(false)}
-        handleSave={(ex) => handleEditExercicio(exercicio.id, ex)}
+        handleSave={(ex) =>
+          handleEditExercicio(exercicio.routineExerciseId, ex)
+        }
       />
     </TouchableOpacity>
   )

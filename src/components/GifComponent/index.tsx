@@ -1,22 +1,29 @@
-import { Image } from 'react-native'
+import { Image, View } from 'react-native'
 import { ListedExercise } from '../../types/exercises'
 
 interface GifComponentProps {
   imageData: ListedExercise['imageData']
 }
 const GifComponent = ({ imageData }: GifComponentProps) => {
-  const imageBase64 = `data:image/${imageData.imageType};base64,${imageData.imageBase64}`
   return (
-    <Image
+    <View
       style={{
-        resizeMode: 'stretch',
-        width: 90,
-        height: 90
+        backgroundColor: 'white',
+        borderRadius: 50,
+        overflow: 'hidden'
       }}
-      source={{
-        uri: imageBase64
-      }}
-    />
+    >
+      <Image
+        style={{
+          resizeMode: 'stretch',
+          width: 70,
+          height: 70
+        }}
+        source={{
+          uri: imageData.imageBase64
+        }}
+      />
+    </View>
   )
 }
 

@@ -6,7 +6,6 @@ export default () => {
   return StyleSheet.create({
     container: {
       borderRadius: 5,
-      marginTop: 2.5,
       minHeight: 40,
       justifyContent: 'center',
       flex: 1,

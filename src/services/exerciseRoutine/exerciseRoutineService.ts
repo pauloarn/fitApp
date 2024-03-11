@@ -1,5 +1,6 @@
 import { makeService } from '../abstractHookService'
 import {
+  CreateNormalExerciseRoutineRequest,
   CreateRandomExerciseRoutineRequest,
   ExerciseRoutineDetailResponse,
   ExerciseRoutineItem
@@ -8,10 +9,28 @@ import { Pageable } from '../../types/genericTypes'
 
 const useExerciseRoutineService = makeService(
   'exercise-routine',
-  ({ get, post, del }) => {
+  ({ get, post, del, put }) => {
     const createRandomRoutine = (data: CreateRandomExerciseRoutineRequest) => {
       const { response } = post<{ body: ExerciseRoutineDetailResponse }>(
         'random',
+        data
+      )
+      return response
+    }
+    const createNormalRoutine = (data: CreateNormalExerciseRoutineRequest) => {
+      const { response } = post<{ body: ExerciseRoutineDetailResponse }>(
+        '',
+        data
+      )
+      return response
+    }
+
+    const updateRoutine = (
+      routineId: number,
+      data: CreateNormalExerciseRoutineRequest
+    ) => {
+      const { response } = put<{ body: ExerciseRoutineDetailResponse }>(
+        `${routineId}`,
         data
       )
       return response
@@ -35,7 +54,9 @@ const useExerciseRoutineService = makeService(
     }
 
     return {
+      updateRoutine,
       getExerciseRoutine,
+      createNormalRoutine,
       deleteRoutine,
       getAllRoutines,
       createRandomRoutine

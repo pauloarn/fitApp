@@ -8,6 +8,7 @@
     "@react-navigation/native": "^6.1.2",
     "@react-navigation/native-stack": "^6.9.8",
     "@reduxjs/toolkit": "^1.9.1",
+    "@types/lodash": "^4.14.202",
     "apisauce": "^2.1.5",
     "axios": "^0.21.4",
     "expo": "^47.0.0",

@@ -1,4 +1,5 @@
 import { Exercicio } from './Exercicio'
+import { Null } from '../../types/genericTypes'
 
 export interface ExercicioTreinoConfig extends Exercicio {
   exercicioSet?: ExercicioSetup
@@ -10,7 +11,7 @@ export interface ExercicioTreinoExecutado extends ExercicioTreinoConfig {
 }
 
 export interface ExercicioSetup {
-  repeticoes: number
-  series: number
-  carga: number
+  repeticoes: Null<number>
+  series: Null<number>
+  carga: Null<number>
 }

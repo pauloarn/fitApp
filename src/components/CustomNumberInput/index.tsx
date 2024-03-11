@@ -1,5 +1,5 @@
 import { CustomTextInputProps } from '../CustomTextInput'
-import { Null } from '../../types/genericTypes'
+import { Null, Undefined } from '../../types/genericTypes'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Text, TextInput } from 'react-native-paper'
 import { FontAwesome5 } from '@expo/vector-icons'
@@ -10,8 +10,8 @@ interface CustomNumberInputProps
     CustomTextInputProps,
     'value' | 'onChange' | 'onChangeText' | 'label'
   > {
-  onChangeNumber?: (value: number) => void
-  value: Null<number>
+  onChangeNumber?: (value: Undefined<number>) => void
+  value: Undefined<Null<number>>
   currency?: boolean
   percent?: boolean
   digit?: number
@@ -40,9 +40,9 @@ const CustomNumberInput = ({
   labelInput,
   ...props
 }: CustomNumberInputProps) => {
-  const [numberValue, setNumberValue] = useState<string>()
+  const [numberValue, setNumberValue] = useState<Undefined<string>>()
   const debounceNumber = useCallback(
-    (n: number) => {
+    (n: Undefined<number>) => {
       if (debounceTime) {
         setTimeout(onChangeNumber, debounceTime, n)
       } else {

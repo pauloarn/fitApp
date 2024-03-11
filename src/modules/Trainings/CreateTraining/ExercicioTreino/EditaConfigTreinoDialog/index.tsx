@@ -3,6 +3,7 @@ import { ExercicioSetup } from '../../../../../database/model/ExercicioTreinoCon
 import CustomNumberInput from '../../../../../components/CustomNumberInput'
 import { useState } from 'react'
 import Divider from '../../../../../components/Divider'
+import { Undefined } from '../../../../../types/genericTypes'
 
 interface EditaConfigTreinoDialogProps {
   isOpen: boolean
@@ -18,12 +19,20 @@ const EditaConfigTreinoDialog = ({
   handleClose,
   exercicio
 }: EditaConfigTreinoDialogProps) => {
-  const [carga, setCarga] = useState(exercicio?.carga || 0)
-  const [series, setSeries] = useState(exercicio?.series || 0)
-  const [repeticoes, setRepeticoes] = useState(exercicio?.repeticoes || 0)
+  const [carga, setCarga] = useState<Undefined<number>>(exercicio?.carga || 0)
+  const [series, setSeries] = useState<Undefined<number>>(
+    exercicio?.series || 0
+  )
+  const [repeticoes, setRepeticoes] = useState<Undefined<number>>(
+    exercicio?.repeticoes || 0
+  )
 
   const handleSaveExercicio = () => {
-    handleSave({ repeticoes, carga, series })
+    handleSave({
+      repeticoes: repeticoes ?? 0,
+      carga: carga ?? 0,
+      series: series ?? 0
+    })
     handleClose()
   }
 
@@ -35,7 +44,6 @@ const EditaConfigTreinoDialog = ({
         <Dialog.Title>{nomeExercicio}</Dialog.Title>
         <Dialog.Content>
           <CustomNumberInput
-            label={'Carga'}
             placeholder={'Carga'}
             endIcon={<TextInput.Affix text={'KG'} />}
             value={carga}
@@ -43,14 +51,12 @@ const EditaConfigTreinoDialog = ({
           />
           <Divider y={1} />
           <CustomNumberInput
-            label={'Séries'}
             placeholder={'Séries'}
             value={series}
             onChangeNumber={setSeries}
           />
           <Divider y={1} />
           <CustomNumberInput
-            label={'Repetições'}
             placeholder={'Repetições'}
             value={repeticoes}
             onChangeNumber={setRepeticoes}

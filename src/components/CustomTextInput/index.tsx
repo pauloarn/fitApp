@@ -31,7 +31,7 @@ const CustomTextInput = ({
   const lastPattern = useRef('')
   const lastValues = useRef(['', ''])
 
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const [isPasswordVisible, setIsPasswordVisible] = useState(true)
   const limitarTexto = (text: string) => {
     if (fieldLimit && text.length > fieldLimit) {
       return text.slice(0, fieldLimit)
@@ -106,14 +106,13 @@ const CustomTextInput = ({
     <TextInput
       mode={'outlined'}
       label={getHelperText()}
+      activeOutlineColor={'transparent'}
+      cursorColor={'white'}
+      outlineColor={`transparent`}
       placeholder={getHelperText()}
-      outlineStyle={{
-        borderWidth: 1,
-        borderBottomWidth: 1
-      }}
       secureTextEntry={isPassword && isPasswordVisible}
       right={
-        isPassword && (
+        isPassword ? (
           <TextInput.Icon
             icon={isPasswordVisible ? 'eye' : 'eye-off'}
             iconColor={'white'}
@@ -121,7 +120,7 @@ const CustomTextInput = ({
               setIsPasswordVisible((prev) => !prev)
             }}
           />
-        )
+        ) : null
       }
       dense
       {...props}

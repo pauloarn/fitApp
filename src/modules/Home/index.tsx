@@ -12,10 +12,10 @@ const Tab = createBottomTabNavigator()
 
 const tabs: TabScreens<TabsRouter>[] = [
   {
-    path: 'Search',
-    component: ListExercises,
-    label: 'EXERCÍCIOS',
-    icon: 'search'
+    path: 'Trainings',
+    component: Trainings,
+    label: 'TREINOS',
+    icon: 'dumbbell'
   },
   {
     path: 'Randomize',
@@ -24,10 +24,10 @@ const tabs: TabScreens<TabsRouter>[] = [
     icon: 'random'
   },
   {
-    path: 'Trainings',
-    component: Trainings,
-    label: 'TREINOS',
-    icon: 'dumbbell'
+    path: 'Search',
+    component: ListExercises,
+    label: 'EXERCÍCIOS',
+    icon: 'search'
   }
 ]
 
@@ -48,7 +48,7 @@ const Home = () => {
 
   return (
     <Tab.Navigator
-      initialRouteName={'Search'}
+      initialRouteName={'Trainings'}
       screenOptions={{
         tabBarStyle: {
           height: '7%'

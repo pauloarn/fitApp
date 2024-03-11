@@ -1,11 +1,17 @@
-import { ActivityIndicator, FlatList, Text, View } from 'react-native'
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  Text,
+  View
+} from 'react-native'
 import styles from './styles'
 import ListaVaziaText from '../../../components/ListaVaziaText'
 import FloatingActionButton from '../../../components/FloatingActionButton'
 import { useNavigation } from '@react-navigation/core'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { RootRouter, TrainingRouter } from '../../../types/routes'
-import { useState } from 'react'
+import { TrainingRouter } from '../../../types/routes'
+import { useEffect, useState } from 'react'
 import TreinoItems from './TreinoItems'
 import { useAppDispatch } from '../../../hooks/useRedux'
 import { setTituloTreinoEdit } from '../../../redux/slices/treinoSlice'
@@ -14,25 +20,21 @@ import useExerciseRoutineService from '../../../services/exerciseRoutine/exercis
 import { ExerciseRoutineItem } from '../../../types/exerciseRoutine'
 import Toast from 'react-native-root-toast'
 
-const CreateTraining = () => {
-  const { navigate } =
+const ListTrainings = () => {
+  const { navigate, addListener, removeListener } =
     useNavigation<NativeStackNavigationProp<TrainingRouter>>()
-  const { addListener, isFocused } =
-    useNavigation<NativeStackNavigationProp<RootRouter>>()
   const dispatch = useAppDispatch()
   const [treinos, setTreinos] = useState<ExerciseRoutineItem[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const { getAllRoutines, deleteRoutine } = useExerciseRoutineService()
-  addListener('focus', () => {
-    if (isFocused()) {
-      handleLoadTreinos()
-    }
-  })
 
+  const { getAllRoutines, deleteRoutine } = useExerciseRoutineService()
+  useEffect(() => {
+    addListener('focus', () => {
+      handleLoadTreinos()
+    })
+    removeListener('focus', () => {})
+  }, [])
   const handleLoadTreinos = () => {
-    if (isLoading) {
-      return
-    }
     setIsLoading(true)
     setTreinos([])
     getAllRoutines().then((res) => {
@@ -69,6 +71,9 @@ const CreateTraining = () => {
       </View>
       <FlatList<ExerciseRoutineItem>
         data={treinos}
+        refreshControl={
+          <RefreshControl refreshing={false} onRefresh={handleLoadTreinos} />
+        }
         keyExtractor={(item) => item.routineId.toString()}
         ListEmptyComponent={getListEmptyComponent()}
         ListFooterComponent={
@@ -100,4 +105,4 @@ const CreateTraining = () => {
   )
 }
 
-export default CreateTraining
+export default ListTrainings

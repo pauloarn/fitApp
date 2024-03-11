@@ -3,7 +3,10 @@ class QueryBuilder {
   private query: string[] = []
 
   addQuery(key: string, value: any) {
-    if (this.isRemoveEmptyOrNullValue && [undefined, null, ''].includes(value))
+    if (
+      this.isRemoveEmptyOrNullValue &&
+      [undefined, null, '', 0].includes(value)
+    )
       return this
     this.query.push(`${key}=${value}`)
     return this

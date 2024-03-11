@@ -1,12 +1,6 @@
-import {
-  ActivityIndicator,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
-} from 'react-native'
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
 import styles from './styles'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import Toast from 'react-native-root-toast'
 import { sessionService } from '../../services/session/sessionService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -28,7 +22,6 @@ const LoginSchema: z.Schema<LoginForm> = z.object({
   userPassword: z.string()
 })
 const Login = () => {
-  const inputRef = useRef<TextInput>()
   const { navigate } = useNavigation<NativeStackNavigationProp<RootRouter>>()
 
   const { control, submit, trigger, getValues } = useFormElement<{
@@ -52,6 +45,7 @@ const Login = () => {
     if (!isValid) {
       return
     }
+    setIsLogginIn(true)
     try {
       const response = await createSession(data)
       if (response.ok && response.data) {
@@ -60,7 +54,6 @@ const Login = () => {
           response.data.body.authToken
         )
         setIsLogginIn(false)
-        //@ts-ignore
         navigate('MainRouter')
       } else {
         setIsLogginIn(false)
@@ -75,6 +68,7 @@ const Login = () => {
   return (
     <View style={styles.mainContainer}>
       <Text style={styles.titleText}>FIT APP</Text>
+      {/*//TODO: AJUSTAR LOGO DO APEPE*/}
       <View style={styles.imageContainer}>
         <Text style={{ color: 'red', fontWeight: 'bold' }}>
           LOGO DO APEPE VAI AQUI (OU EM CIMA, SEI LÁ)
@@ -102,11 +96,9 @@ const Login = () => {
           {isLogginIn ? (
             <ActivityIndicator size={30} />
           ) : (
-            <>
-              <TouchableOpacity onPress={() => submit(handleLogin)()}>
-                <Text style={styles.loginButtonText}>LOGIN</Text>
-              </TouchableOpacity>
-            </>
+            <TouchableOpacity onPress={() => submit(handleLogin)()}>
+              <Text style={styles.loginButtonText}>LOGIN</Text>
+            </TouchableOpacity>
           )}
         </View>
       </View>

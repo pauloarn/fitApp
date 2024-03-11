@@ -15,7 +15,7 @@ const ListaVaziaText = ({ text, hpPercentage }: ListaVaziaTextProps) => {
       }}
     >
       <Text style={{ color: 'white', fontSize: 15 }}>
-        {text || 'Nada encontrado'}
+        {text ?? 'Nada encontrado'}
       </Text>
     </View>
   )

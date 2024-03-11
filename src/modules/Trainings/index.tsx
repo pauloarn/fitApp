@@ -1,9 +1,9 @@
 import { BaseScreens, TrainingRouter } from '../../types/routes'
 import ListTrainings from './ListTrainings'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import CreateTraining from './CreateTraining'
 import ListExercises from '../ListExercises'
 import TreinoDetalhe from './TreinoDetalhe'
+import CreateTraining from './CreateTraining'
 
 const screens: BaseScreens<TrainingRouter>[] = [
   {

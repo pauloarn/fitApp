@@ -42,11 +42,11 @@ const DropDown = ({
 
   return (
     <View style={styles.container}>
-      {selectedValue && (
+      {selectedValue ? (
         <View style={styles.placeHolder}>
           <Text style={{ ...styles.text, fontSize: 13 }}>{label}</Text>
         </View>
-      )}
+      ) : null}
       <TouchableOpacity style={styles.button} onPress={handleOpenModal}>
         <Text style={styles.text}>{selected ? selected.label : label}</Text>
         <MaterialIcons
@@ -56,7 +56,7 @@ const DropDown = ({
           style={{ marginTop: -5 }}
         />
       </TouchableOpacity>
-      {isOpen && (
+      {isOpen ? (
         <DialogOptions
           handleClose={() => setIsOpen(false)}
           isOpen={isOpen}
@@ -64,9 +64,8 @@ const DropDown = ({
           items={items}
           onValueChange={handleSelectItem}
         />
-      )}
+      ) : null}
     </View>
   )
 }
-
 export default DropDown

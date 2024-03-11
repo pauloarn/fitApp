@@ -25,7 +25,7 @@ interface TreinoDetalheProps {
   route: RouteProp<TrainingRouter>
 }
 const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
-  const { treinoId: treinoHehe } =
+  const { treinoId: treinoIdFromList } =
     route.params as TrainingRouter['DetalheTreino']
   const { treinoId } = route.params as RandomTrainingRouter['Visualizar']
   const [isObservacaoAreaOpen, setIsObservacaoAreaOpen] = useState(false)
@@ -60,8 +60,17 @@ const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
   if (!treino) {
     return (
       <View style={{ ...styles.mainContainer, justifyContent: `center` }}>
-        <Text>Carregando Treino</Text>
-        <ActivityIndicator size={25} />
+        <Text
+          style={{
+            color: 'white',
+            textAlign: 'center',
+            fontSize: 20,
+            marginBottom: 10
+          }}
+        >
+          Carregando Treino
+        </Text>
+        <ActivityIndicator size={35} />
       </View>
     )
   }
@@ -107,13 +116,13 @@ const TreinoDetalhe = ({ route }: TreinoDetalheProps) => {
         </TouchableOpacity>
         <Text style={styles.headerText}>{treino.routineName}</Text>
       </View>
-      {treino.description.length > 0 && (
+      {treino.description.length > 0 ? (
         <AnotacoesArea
           isObservacaoAreaOpen={isObservacaoAreaOpen}
           setIsObservacaoAreaOpen={setIsObservacaoAreaOpen}
           observacao={treino.description}
         />
-      )}
+      ) : null}
       <SafeAreaView
         style={{
           height: getListHeight(),

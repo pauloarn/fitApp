@@ -1,26 +1,28 @@
 import { FlatList, TouchableOpacity, View } from 'react-native'
 import styles from './styles'
 import { Text } from 'react-native-paper'
-import ListaVaziaText from '../../../components/ListaVaziaText'
 import { RouteProp, useNavigation } from '@react-navigation/core'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { TrainingRouter } from '../../../types/routes'
 import { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../../hooks/useRedux'
-import FloatingActionButtonGroup from '../../../components/FloatingActionButtonGroup'
 import { setExerciciosParaTreino } from '../../../redux/slices/treinoSlice'
-import ExercicioTreino from './ExercicioTreino'
-import treinoService from '../../../database/services/TreinoService'
-import TreinoService from '../../../database/services/TreinoService'
-import { createUuid } from '../../../helpers/string'
-import {
-  ExercicioSetup,
-  ExercicioTreinoConfig
-} from '../../../database/model/ExercicioTreinoConfig'
-import { Treino, TreinoSet } from '../../../database/model/Treino'
+import { ExercicioSetup } from '../../../database/model/ExercicioTreinoConfig'
+import { TreinoSet } from '../../../database/model/Treino'
 import Toast from 'react-native-root-toast'
-import ModalEditaConfigTreino from './ModalEditaConfigTreino'
+import useExerciseRoutineService from '../../../services/exerciseRoutine/exerciseRoutineService'
+import {
+  CreateNormalExerciseRoutineRequest,
+  ExerciseInRoutine,
+  ExerciseRoutineDetailResponse
+} from '../../../types/exerciseRoutine'
+import { createUuid, getNumber } from '../../../helpers/string'
+import { ListedExercise } from '../../../types/exercises'
 import StyledCustomTextInput from '../../../components/StyledCustomTextInput'
+import ListaVaziaText from '../../../components/ListaVaziaText'
+import ExercicioTreino from './ExercicioTreino'
+import FloatingActionButtonGroup from '../../../components/FloatingActionButtonGroup'
+import ModalEditaConfigTreino from './ModalEditaConfigTreino'
 
 interface CreateTrainingProps {
   route: RouteProp<TrainingRouter>
@@ -30,48 +32,82 @@ const CreateTraining = ({ route }: CreateTrainingProps) => {
   const { navigate, goBack, addListener } =
     useNavigation<NativeStackNavigationProp<TrainingRouter>>()
   const dispatch = useAppDispatch()
-  const { adicionaTreino, editaTreino } = treinoService()
+
+  const { getExerciseRoutine, createNormalRoutine, updateRoutine } =
+    useExerciseRoutineService()
   const [isEditando, setIsEditando] = useState(false)
+  const [exerciseRoutine, setExerciseRoutine] =
+    useState<ExerciseRoutineDetailResponse>()
   const [treinoConfig, setTreinoConfig] = useState<TreinoSet>()
-  const [treinoId, setTreinoId] = useState<string>()
+  const [isLoading, setIsLoading] = useState(false)
   const [isModalEditaTreinoOpen, setIsModalEditaTreinoOpen] = useState(false)
   const { show: toastShow } = Toast
   const title = useAppSelector((state) => state.treinoSlice.tituloAbaTreino)
 
   const [nomeTreino, setNomeTreino] = useState<string>('')
-  const [exerciciosTreino, setExerciciosTreino] = useState<
-    ExercicioTreinoConfig[]
-  >([])
-
-  const { encontraTreinoPorId } = TreinoService()
   const treinoProps = route.params as TrainingRouter['CreateTraining']
 
+  const getListRoutineExercise = (
+    exercises: ListedExercise[],
+    prev?: ExerciseRoutineDetailResponse
+  ) => {
+    if (treinoProps.exercicios) {
+      return treinoProps.exercicios.map((ex) => {
+        const indexExCadastrado = exercises.findIndex(
+          (exT) => exT.exerciseId === ex.exerciseId
+        )
+        if (indexExCadastrado >= 0 && prev) {
+          return prev.listRoutineExercise[indexExCadastrado]
+        }
+        const newExercise: ExerciseInRoutine = {
+          routineExerciseId: Number(getNumber(createUuid())),
+          execise: ex,
+          observation: null,
+          series: null,
+          repetitions: null,
+          exerciseWeight: null,
+          restTime: null,
+          biSetExercise: []
+        }
+        return newExercise
+      })
+    }
+    return []
+  }
   useEffect(() => {
     if (treinoProps) {
       if (treinoProps.treinoId) {
-        encontraTreinoPorId(treinoProps.treinoId).then((treino) => {
-          setExerciciosTreino(treino.exercicios)
-          setNomeTreino(treino.nome)
-          setTreinoConfig(treino.treinoSet)
-          setTreinoId(treino.id)
-          setIsEditando(true)
+        setIsEditando(true)
+        setIsLoading(true)
+        getExerciseRoutine(Number(treinoProps.treinoId)).then((res) => {
+          if (res.data?.body) {
+            setExerciseRoutine(res.data.body)
+            setNomeTreino(res.data.body.routineName)
+            setIsLoading(false)
+          }
         })
       }
       if (treinoProps.exercicios) {
-        setExerciciosTreino(
-          treinoProps.exercicios.map((ex) => {
-            const indexExCadastrado = exerciciosTreino.findIndex(
-              (exT) => exT.id === ex.id
-            )
-            if (indexExCadastrado >= 0) {
-              return exerciciosTreino[indexExCadastrado]
-            }
+        setExerciseRoutine((prev) => {
+          if (prev) {
+            const exercises = prev.listRoutineExercise.map((ex) => {
+              return ex.execise
+            })
             return {
-              ...ex,
-              criacao: new Date()
+              ...prev,
+              listRoutineExercise: getListRoutineExercise(exercises, prev)
             }
-          })
-        )
+          }
+          return {
+            routineId: Number(getNumber(createUuid())),
+            routineName: '',
+            description: '',
+            series: null,
+            repetitions: null,
+            restTime: null,
+            listRoutineExercise: getListRoutineExercise([], prev)
+          }
+        })
       }
     }
   }, [treinoProps])
@@ -82,7 +118,8 @@ const CreateTraining = ({ route }: CreateTrainingProps) => {
   const handleAdicionaExercicios = () => {
     navigate('SelecionaExercicio', {
       vaiSelecionarExercicios: true,
-      exerciciosTreino: exerciciosTreino
+      exerciciosTreino:
+        exerciseRoutine?.listRoutineExercise.map((ex) => ex.execise) || []
     })
   }
 
@@ -91,47 +128,80 @@ const CreateTraining = ({ route }: CreateTrainingProps) => {
       toastShow('Necessário informar um nome para o treino')
       return
     }
-    if (exerciciosTreino.length === 0) {
+    if (exerciseRoutine?.listRoutineExercise.length === 0) {
       toastShow('Necessário adicionar pelo menos 1 exercício')
       return
     }
-    const treino: Treino = {
-      id: createUuid(),
-      nome: nomeTreino,
-      exercicios: exerciciosTreino,
-      treinoSet: treinoConfig
-    }
-    if (isEditando) {
-      await editaTreino(treinoId, treino)
+    if (exerciseRoutine) {
+      const requestData: CreateNormalExerciseRoutineRequest = {
+        series: exerciseRoutine?.series,
+        repetitions: exerciseRoutine.repetitions,
+        exerciseList: exerciseRoutine.listRoutineExercise.map((ex) => {
+          return {
+            exerciseId: ex.execise.exerciseId,
+            restTime: ex.restTime,
+            repetitions: ex.repetitions,
+            series: ex.series,
+            obervation: ex.observation
+          }
+        }),
+        observation: exerciseRoutine.description,
+        restTime: exerciseRoutine.restTime,
+        routineName: nomeTreino
+      }
+      try {
+        if (isEditando) {
+          await updateRoutine(exerciseRoutine.routineId, requestData)
+        } else {
+          await createNormalRoutine(requestData)
+        }
+        dispatch(setExerciciosParaTreino([]))
+        navigate({ key: 'ListTrainings' })
+      } catch (e) {
+        // @ts-ignore
+        console.log(e.toString())
+        toastShow(`Falha ao ${isEditando ? 'Cadastrar' : 'Editar'} treino`)
+      }
     } else {
-      await adicionaTreino(treino)
+      toastShow('Falha ao criar Treino')
     }
-    dispatch(setExerciciosParaTreino([]))
-    navigate('ListTrainings')
   }
-  const excluiExercicio = (exercicio: ExercicioTreinoConfig) => {
-    setExerciciosTreino((prev) => prev.filter((ex) => ex.id !== exercicio.id))
+  const excluiExercicio = (exercicioId: number) => {
+    setExerciseRoutine((prev) => {
+      if (prev) {
+        return {
+          ...prev,
+          listRoutineExercise: prev.listRoutineExercise.filter(
+            (ex) => ex.routineExerciseId !== exercicioId
+          )
+        }
+      }
+    })
   }
 
   const handleEditaExercicio = (
-    exercicioId: string,
+    exercicioId: number,
     exercicio: ExercicioSetup
   ) => {
-    setExerciciosTreino((prev) =>
-      prev.map((ex) => {
-        if (ex.id === exercicioId) {
-          return {
-            ...ex,
-            exercicioSet: {
-              carga: exercicio.carga,
-              series: exercicio.series,
-              repeticoes: exercicio.repeticoes
-            }
-          }
+    setExerciseRoutine((prev) => {
+      if (prev) {
+        return {
+          ...prev,
+          listRoutineExercise:
+            prev?.listRoutineExercise.map((ex) => {
+              if (ex.routineExerciseId === exercicioId) {
+                return {
+                  ...ex,
+                  repetitions: exercicio.repeticoes,
+                  exerciseWeight: exercicio.carga,
+                  series: exercicio.series
+                }
+              }
+              return ex
+            }) || []
         }
-        return ex
-      })
-    )
+      }
+    })
   }
 
   return (
@@ -141,9 +211,7 @@ const CreateTraining = ({ route }: CreateTrainingProps) => {
           <Text style={styles.textButton}>VOLTAR</Text>
         </TouchableOpacity>
         <Text style={styles.headerText}>{title}</Text>
-        <TouchableOpacity onPress={() => setIsModalEditaTreinoOpen(true)}>
-          <Text style={styles.textButton}>CONFIGURAR</Text>
-        </TouchableOpacity>
+        <View style={{ width: 40 }} />
       </View>
       <StyledCustomTextInput
         placeholder={'Nome do Treino'}
@@ -161,9 +229,9 @@ const CreateTraining = ({ route }: CreateTrainingProps) => {
       >
         Exercicios
       </Text>
-      <FlatList<ExercicioTreinoConfig>
-        data={exerciciosTreino}
-        keyExtractor={(item) => item.id}
+      <FlatList<ExerciseInRoutine>
+        data={exerciseRoutine?.listRoutineExercise ?? []}
+        keyExtractor={(item) => item.routineExerciseId.toString()}
         ListEmptyComponent={
           <ListaVaziaText
             hpPercentage={'35%'}
@@ -173,7 +241,7 @@ const CreateTraining = ({ route }: CreateTrainingProps) => {
         style={{ width: '100%' }}
         renderItem={(e) => (
           <ExercicioTreino
-            key={`${e.index}-${e.item.nomeExercicio}-${e.item.id}`}
+            key={`${e.index}-${e.item.execise.name}-${e.item.routineExerciseId}`}
             exercicio={e.item}
             handleEditExercicio={handleEditaExercicio}
             excluiExercicio={excluiExercicio}
@@ -193,6 +261,12 @@ const CreateTraining = ({ route }: CreateTrainingProps) => {
             onPress: handleAdicionaExercicios,
             label: 'Adicionar Exercicio',
             iconName: 'plus'
+          },
+          {
+            onPress: () => setIsModalEditaTreinoOpen(true),
+            label: 'Informações Adicionais',
+            isFontAwesome: true,
+            iconName: 'gear'
           },
           {
             onPress: handleSalvaTreino,

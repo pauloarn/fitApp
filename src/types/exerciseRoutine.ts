@@ -8,13 +8,29 @@ export interface CreateRandomExerciseRoutineRequest {
   amountOfExercises: number
 }
 
+export interface CreateNormalExerciseRoutineRequest {
+  routineName: string
+  repetitions: Null<number>
+  series: Null<number>
+  restTime: Null<number>
+  observation: string
+  exerciseList: CreateExerciseRoutineExercise[]
+}
+
+export interface CreateExerciseRoutineExercise {
+  exerciseId: number
+  obervation?: Null<string>
+  repetitions?: Null<number>
+  series?: Null<number>
+  restTime?: Null<number>
+}
 export interface ExerciseRoutineDetailResponse {
   routineId: number
   routineName: string
   description: string
-  series: number
-  repetitions: number
-  restTime: number
+  series: Null<number>
+  repetitions: Null<number>
+  restTime: Null<number>
   listRoutineExercise: ExerciseInRoutine[]
 }
 
@@ -36,5 +52,5 @@ export interface ExerciseInRoutine {
 export interface ExerciseRoutineItem {
   routineId: number
   routineName: string
-  description: string
+  exercises: string[]
 }

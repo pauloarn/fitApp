@@ -1,7 +1,7 @@
 import { ActivityIndicator, FlatList, View } from 'react-native'
 import ExerciseCard from './ExerciseCard'
 import styles from './styles'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from "react";
 import { ListedExercise } from '../../types/exercises'
 import SearchArea, { SearchFilterForm } from './SearchArea'
 import ListaVaziaText from '../../components/ListaVaziaText'
@@ -21,6 +21,9 @@ const ListExercises = ({ route }: ListExercisesProps) => {
     tipoTreino: null,
     tipoEquipamento: null
   })
+
+  const [isSelecionandoExercicios, setIsSelecionandoExercicios] =
+    useState(false)
   const {
     exercisesList,
     isLoading,
@@ -28,10 +31,7 @@ const ListExercises = ({ route }: ListExercisesProps) => {
     handleLoadMoreItems,
     exerciciosSelecionados,
     setExerciciosSelecionados
-  } = useExercisesList(searchFilter)
-
-  const [isSelecionandoExercicios, setIsSelecionandoExercicios] =
-    useState(false)
+  } = useExercisesList(searchFilter, isSelecionandoExercicios)
   const { navigate } =
     useNavigation<NativeStackNavigationProp<TrainingRouter>>()
 

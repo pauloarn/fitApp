@@ -5,7 +5,10 @@ import QueryBuilder from '../../utils/queryBuilder'
 import { SearchFilterForm } from './SearchArea'
 import Toast from 'react-native-root-toast'
 
-const useExercisesList = (filterData: SearchFilterForm) => {
+const useExercisesList = (
+  filterData: SearchFilterForm,
+  isSelecionandoExercicios: boolean
+) => {
   const [exercisesList, setExercisesList] = useState<ListedExercise[]>([])
   const [page, setPage] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -13,8 +16,6 @@ const useExercisesList = (filterData: SearchFilterForm) => {
   const [exerciciosSelecionados, setExerciciosSelecionados] = useState<
     ListedExercise[]
   >([])
-  const [isSelecionandoExercicios, setIsSelecionandoExercicios] =
-    useState(false)
   const { getAllExercises } = exercisesService()
 
   const getQuery = (localPage: number) => {

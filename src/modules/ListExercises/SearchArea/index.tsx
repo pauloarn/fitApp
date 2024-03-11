@@ -1,13 +1,13 @@
-import { Button, TextInput } from 'react-native-paper'
-import { TouchableOpacity, View } from 'react-native'
+import { TextInput } from 'react-native-paper'
+import { BackHandler, View } from 'react-native'
 import { FontAwesome5 } from '@expo/vector-icons'
-import React, { useState } from 'react'
-import styles from './styles'
-import DropDown from '../../../components/DropDown'
+import React, { useEffect, useState } from 'react'
 import { useAppSelector } from '../../../hooks/useRedux'
 import { Null } from '../../../types/genericTypes'
 import StyledCustomTextInput from '../../../components/StyledCustomTextInput'
-import Divider from '../../../components/Divider'
+import useDebounce from '../../../hooks/useDebounce'
+import CategorySelector from '../../../components/CategorySelector'
+import { heightPercentageToDP } from 'react-native-responsive-screen'
 
 export interface SearchFilterForm {
   muscleName: string
@@ -22,7 +22,6 @@ interface SearchAreaProps {
 
 const SearchArea = ({ handleSearch }: SearchAreaProps) => {
   const [searchText, setSearchText] = useState('')
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [grupoMuscularSelecionado, setGrupoMuscularSelecionado] =
     useState<Null<number>>(null)
   const [tipoEquipamentoSelecionado, setTipoEquipamentoSelecionado] =
@@ -30,14 +29,26 @@ const SearchArea = ({ handleSearch }: SearchAreaProps) => {
 
   const [tipoTreinoSelecionado, setTipoTreinoSelecionado] =
     useState<Null<number>>(null)
-  const ref = React.createRef<View>()
+  const debouncedSearch = useDebounce(searchText, 600)
   const { grupoMuscular, tipoTreino, tipoEquipamento } = useAppSelector(
     (state) => state.exercisesSlice
   )
-  const handleOpenFilter = () => {
-    setIsModalOpen(true)
-  }
 
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        setSearchText('')
+        handleSearchFilter()
+        return true
+      }
+    )
+    backHandler.remove()
+  }, [])
+
+  useEffect(() => {
+    handleSearchFilter()
+  }, [debouncedSearch, tipoEquipamentoSelecionado, grupoMuscularSelecionado])
   const handleSearchFilter = () => {
     handleSearch({
       muscleName: searchText,
@@ -45,7 +56,6 @@ const SearchArea = ({ handleSearch }: SearchAreaProps) => {
       muscleGroup: grupoMuscularSelecionado,
       tipoEquipamento: tipoEquipamentoSelecionado
     })
-    setIsModalOpen(false)
   }
 
   return (
@@ -58,9 +68,8 @@ const SearchArea = ({ handleSearch }: SearchAreaProps) => {
       }}
     >
       <StyledCustomTextInput
-        placeholder={'Buscar Exercício'}
+        placeholder={'Procurar Exercício'}
         mode={'outlined'}
-        onFocus={handleOpenFilter}
         onSubmitEditing={handleSearchFilter}
         left={
           <TextInput.Icon
@@ -69,63 +78,39 @@ const SearchArea = ({ handleSearch }: SearchAreaProps) => {
             )}
           />
         }
-        right={
-          <TextInput.Icon
-            icon={() => (
-              <TouchableOpacity onPress={() => setIsModalOpen((prev) => !prev)}>
-                <FontAwesome5
-                  name={isModalOpen ? 'arrow-up' : 'arrow-down'}
-                  color={'white'}
-                  size={15}
-                />
-              </TouchableOpacity>
-            )}
-          />
-        }
-        outlineStyle={{
-          borderWidth: 1,
-          borderBottomLeftRadius: isModalOpen ? 0 : undefined,
-          borderBottomRightRadius: isModalOpen ? 0 : undefined,
-          borderBottomWidth: isModalOpen ? 0 : 1
-        }}
         value={searchText}
         onChangeText={setSearchText}
       />
-      {isModalOpen && (
-        <View ref={ref} style={styles.filterArea}>
-          <DropDown
-            selectedValue={grupoMuscularSelecionado}
-            onValueChange={(a) => {
-              setGrupoMuscularSelecionado(a)
+      <View
+        style={{
+          paddingTop: 10,
+          flexDirection: `row`,
+          justifyContent: 'space-between'
+        }}
+      >
+        <View style={{ width: '48%', height: heightPercentageToDP(4) }}>
+          <CategorySelector
+            fieldLabel={'Tipo de Equipamento'}
+            noSelectedLabel={'Todos Equipamentos'}
+            onSelect={(selected) => {
+              setTipoEquipamentoSelecionado(selected.value)
             }}
-            label={'Grupo Muscular'}
-            items={grupoMuscular}
+            options={tipoEquipamento}
+            selectedOption={tipoEquipamentoSelecionado}
           />
-          <Divider y={1} />
-          <DropDown
-            selectedValue={tipoTreinoSelecionado}
-            onValueChange={(a) => {
-              setTipoTreinoSelecionado(a)
-            }}
-            label={'Tipo Treino'}
-            items={tipoTreino}
-          />
-          <Divider y={1} />
-          <DropDown
-            selectedValue={tipoEquipamentoSelecionado}
-            onValueChange={(a) => {
-              setTipoEquipamentoSelecionado(a)
-            }}
-            label={'Tipo Equipamento'}
-            items={tipoEquipamento}
-          />
-          <View style={{ alignItems: 'flex-end' }}>
-            <Button onPress={handleSearchFilter} textColor={'white'}>
-              Buscar
-            </Button>
-          </View>
         </View>
-      )}
+        <View style={{ width: '48%' }}>
+          <CategorySelector
+            fieldLabel={'Músculo'}
+            noSelectedLabel={'Todos os Músculos'}
+            onSelect={(selected) => {
+              setGrupoMuscularSelecionado(selected.value)
+            }}
+            options={grupoMuscular}
+            selectedOption={grupoMuscularSelecionado}
+          />
+        </View>
+      </View>
     </View>
   )
 }

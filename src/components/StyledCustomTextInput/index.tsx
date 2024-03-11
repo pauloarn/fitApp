@@ -9,12 +9,9 @@ const StyledCustomTextInput = (props: StyledCustomTextInputProps) => {
     <CustomTextInput
       placeholderTextColor={'white'}
       textColor={'white'}
-      activeOutlineColor={'white'}
-      outlineColor={'white'}
       style={{
         backgroundColor: defaults.corBackTextInput,
-        zIndex: 1,
-        color: 'white'
+        zIndex: 1
       }}
       {...props}
     />
