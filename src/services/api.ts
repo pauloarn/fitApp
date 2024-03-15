@@ -14,12 +14,10 @@ const apiSauceInstance = (url?: string) => {
   })
 
   instance.axiosInstance.interceptors.request.use(async (request) => {
-    let token = config.token
     const tempToken = await AsyncStorage.getItem(config.localStorageTokenName)
     if (tempToken) {
-      token = tempToken
+      request.headers.Authorization = `Bearer ${tempToken}`
     }
-    request.headers.Authorization = `Bearer ${token}`
     return request
   })
 

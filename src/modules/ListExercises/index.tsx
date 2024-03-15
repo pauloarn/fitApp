@@ -1,7 +1,7 @@
 import { ActivityIndicator, FlatList, View } from 'react-native'
 import ExerciseCard from './ExerciseCard'
 import styles from './styles'
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 import { ListedExercise } from '../../types/exercises'
 import SearchArea, { SearchFilterForm } from './SearchArea'
 import ListaVaziaText from '../../components/ListaVaziaText'
@@ -27,6 +27,8 @@ const ListExercises = ({ route }: ListExercisesProps) => {
   const {
     exercisesList,
     isLoading,
+    page,
+    totalPages,
     handleClickCard,
     handleLoadMoreItems,
     exerciciosSelecionados,
@@ -44,7 +46,9 @@ const ListExercises = ({ route }: ListExercisesProps) => {
     }
   }, [exerciciosProps])
   const loadMoreItems = () => {
-    handleLoadMoreItems()
+    if (page > totalPages) {
+      handleLoadMoreItems()
+    }
   }
 
   const handleConfirmExerciciosParaTreino = () => {

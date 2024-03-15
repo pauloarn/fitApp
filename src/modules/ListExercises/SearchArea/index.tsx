@@ -1,13 +1,14 @@
 import { TextInput } from 'react-native-paper'
-import { BackHandler, View } from 'react-native'
-import { FontAwesome5 } from '@expo/vector-icons'
-import React, { useEffect, useState } from 'react'
+import { BackHandler, TouchableOpacity, View } from 'react-native'
+import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useAppSelector } from '../../../hooks/useRedux'
 import { Null } from '../../../types/genericTypes'
 import StyledCustomTextInput from '../../../components/StyledCustomTextInput'
 import useDebounce from '../../../hooks/useDebounce'
 import CategorySelector from '../../../components/CategorySelector'
 import { heightPercentageToDP } from 'react-native-responsive-screen'
+import styles from './styles'
 
 export interface SearchFilterForm {
   muscleName: string
@@ -34,6 +35,22 @@ const SearchArea = ({ handleSearch }: SearchAreaProps) => {
     (state) => state.exercisesSlice
   )
 
+  const showClearFilter = useCallback(() => {
+    const validation: boolean[] = []
+    validation.push(searchText !== '')
+    validation.push(grupoMuscularSelecionado !== null)
+    validation.push(tipoEquipamentoSelecionado !== null)
+    validation.push(tipoTreinoSelecionado !== null)
+    return validation.some(Boolean)
+  }, [
+    searchText,
+    grupoMuscularSelecionado,
+    tipoEquipamentoSelecionado,
+    tipoTreinoSelecionado
+  ])
+
+  const willShowClearFilter = showClearFilter()
+
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
@@ -58,15 +75,14 @@ const SearchArea = ({ handleSearch }: SearchAreaProps) => {
     })
   }
 
+  function handleResetSearchFilter() {
+    setSearchText('')
+    setGrupoMuscularSelecionado(null)
+    setTipoEquipamentoSelecionado(null)
+  }
+
   return (
-    <View
-      style={{
-        width: '100%',
-        paddingHorizontal: 10,
-        paddingTop: 5,
-        marginBottom: 10
-      }}
-    >
+    <View style={styles.filterArea}>
       <StyledCustomTextInput
         placeholder={'Procurar Exercício'}
         mode={'outlined'}
@@ -81,14 +97,13 @@ const SearchArea = ({ handleSearch }: SearchAreaProps) => {
         value={searchText}
         onChangeText={setSearchText}
       />
-      <View
-        style={{
-          paddingTop: 10,
-          flexDirection: `row`,
-          justifyContent: 'space-between'
-        }}
-      >
-        <View style={{ width: '48%', height: heightPercentageToDP(4) }}>
+      <View style={styles.categorySelectorArea}>
+        <View
+          style={{
+            width: willShowClearFilter ? '42%' : '48%',
+            height: heightPercentageToDP(4)
+          }}
+        >
           <CategorySelector
             fieldLabel={'Tipo de Equipamento'}
             noSelectedLabel={'Todos Equipamentos'}
@@ -99,7 +114,7 @@ const SearchArea = ({ handleSearch }: SearchAreaProps) => {
             selectedOption={tipoEquipamentoSelecionado}
           />
         </View>
-        <View style={{ width: '48%' }}>
+        <View style={{ width: willShowClearFilter ? '42%' : '48%' }}>
           <CategorySelector
             fieldLabel={'Músculo'}
             noSelectedLabel={'Todos os Músculos'}
@@ -110,6 +125,14 @@ const SearchArea = ({ handleSearch }: SearchAreaProps) => {
             selectedOption={grupoMuscularSelecionado}
           />
         </View>
+        {willShowClearFilter ? (
+          <TouchableOpacity
+            onPress={() => handleResetSearchFilter()}
+            style={styles.resetFilterButton}
+          >
+            <FontAwesome size={20} name={'close'} color={`white`} />
+          </TouchableOpacity>
+        ) : null}
       </View>
     </View>
   )

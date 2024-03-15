@@ -2,38 +2,100 @@ import {
   ActivityIndicator,
   Modal,
   ScrollView,
-  Text,
   TouchableOpacity,
   View
 } from 'react-native'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { SelectOptions } from '../DropDown/types'
 import useStyles from './styles'
-import { Null } from '../../types/genericTypes'
+import { Null, Undefined } from '../../types/genericTypes'
+import CustomSelectorHeader from './CustomSelectorHeader'
+import CustomSelectorItem from './CustomSelectorItem'
+import CustomSelectorFooter from './CustomSelectorFooter'
 
-interface CustomSelectorModalProps {
+interface CustomSelectorModalSharedPros {
   isModalOpen: boolean
   labelSelector: string
   handleCloseSelector: () => void
-  handleSelectItem: (selectedItem: Null<SelectOptions>) => void
-  selectedItem: Null<number>
+  addAllItem?: Undefined<boolean>
+  maxSelectionSize?: number
   items: SelectOptions[]
 }
+interface CustomSelectorModalMultipleProps
+  extends CustomSelectorModalSharedPros {
+  isMultiple: true
+  handleSelectItem: (selectedItem: number[]) => void
+  selectedItem: number[]
+}
+interface CustomSelectorModalSingleProps extends CustomSelectorModalSharedPros {
+  isMultiple: false
+  handleSelectItem: (selectedItem: Null<SelectOptions>) => void
+  selectedItem: Null<number>
+}
+type CustomSelectorModalProps =
+  | CustomSelectorModalSingleProps
+  | CustomSelectorModalMultipleProps
 const CustomSelectorModal = ({
   isModalOpen,
   selectedItem,
   items,
+  isMultiple,
+  addAllItem = true,
   labelSelector,
   handleCloseSelector,
-  handleSelectItem
+  handleSelectItem,
+  maxSelectionSize
 }: CustomSelectorModalProps) => {
-  const styles = useStyles()
+  const styles = useStyles(isMultiple)
+  const [localSelected, setLocalSelected] = useState<number[]>([])
 
   const getListToRender = useCallback(() => {
     const itemsToRender = [...items]
-    itemsToRender.unshift({ value: 0, label: `Todos` })
+    if (addAllItem) {
+      itemsToRender.unshift({ value: null, label: `Todos` })
+    }
     return itemsToRender
   }, [items])
+
+  useEffect(() => {
+    if (isMultiple) {
+      setLocalSelected(selectedItem)
+    }
+  }, [selectedItem])
+
+  const selectItem = (item: SelectOptions, isSelected: boolean) => {
+    if (isMultiple) {
+      if (item.value) {
+        if (isSelected) {
+          setLocalSelected(localSelected.filter((i) => i !== item.value))
+        } else {
+          const selectedItems = [...localSelected, item.value]
+          if (selectedItems.length <= Number(maxSelectionSize)) {
+            setLocalSelected(selectedItems)
+          }
+        }
+      }
+    } else {
+      handleSelectItem(item)
+    }
+  }
+
+  const handleCancelar = () => {
+    if (isMultiple) {
+      handleSelectItem([])
+    } else {
+      handleSelectItem(null)
+    }
+  }
+  const getIsSelected = (item: SelectOptions) => {
+    if (isMultiple) {
+      if (item.value) {
+        return localSelected.includes(item.value)
+      }
+    }
+    return selectedItem === item.value
+  }
+
   const getModalView = () => {
     if (items) {
       return (
@@ -42,46 +104,33 @@ const CustomSelectorModal = ({
           onPress={handleCloseSelector}
         >
           <View style={styles.secondaryBackContainer}>
-            <View style={styles.headerContainer}>
-              <View style={{ width: '20%' }}></View>
-              <Text
-                style={{
-                  fontSize: 15,
-                  width: '60%',
-                  fontWeight: `bold`,
-                  textAlign: `center`
-                }}
-              >
-                {labelSelector}
-              </Text>
-              <TouchableOpacity
-                style={{ width: '20%', alignItems: `center` }}
-                onPress={() => handleSelectItem(null)}
-              >
-                <Text style={{ color: 'blue' }}>Cancelar</Text>
-              </TouchableOpacity>
-            </View>
+            <CustomSelectorHeader
+              label={labelSelector}
+              handleCancel={handleCancelar}
+            />
             <ScrollView style={{ width: `100%` }}>
               {getListToRender().map((item, index) => {
-                const isSelected = selectedItem === item.value
+                const isSelected = getIsSelected(item)
                 return (
-                  <TouchableOpacity
-                    style={isSelected ? styles.itemSelectedBtn : styles.itemBtn}
-                    onPress={() => handleSelectItem(item)}
+                  <CustomSelectorItem
                     key={index}
-                  >
-                    <Text
-                      style={
-                        isSelected ? styles.selectedItemText : styles.itemText
-                      }
-                    >
-                      {item.label}
-                    </Text>
-                  </TouchableOpacity>
+                    item={item}
+                    isSelected={getIsSelected(item)}
+                    handleSelect={(i) => selectItem(i, isSelected)}
+                  />
                 )
               })}
             </ScrollView>
           </View>
+          <CustomSelectorFooter
+            handleConfirm={() => {
+              if (isMultiple) {
+                handleSelectItem(localSelected)
+              }
+              handleCloseSelector()
+            }}
+            isMultiple={isMultiple}
+          />
         </TouchableOpacity>
       )
     }

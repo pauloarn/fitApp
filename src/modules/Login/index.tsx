@@ -5,12 +5,10 @@ import Toast from 'react-native-root-toast'
 import { sessionService } from '../../services/session/sessionService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import config from '../../utils/config'
-import { useNavigation } from '@react-navigation/core'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { RootRouter } from '../../types/routes'
 import useFormElement from '../../components/FormElement/useFormElement'
 import FormTextField from '../../components/FormElement/FormTextField'
 import { z } from '../../utils/zodMessageParseUtils'
+import { useCategories } from '../../hooks/useCategories'
 
 interface LoginForm {
   userEmail: string
@@ -22,7 +20,7 @@ const LoginSchema: z.Schema<LoginForm> = z.object({
   userPassword: z.string()
 })
 const Login = () => {
-  const { navigate } = useNavigation<NativeStackNavigationProp<RootRouter>>()
+  const { getCategories } = useCategories()
 
   const { control, submit, trigger, getValues } = useFormElement<{
     userEmail: string
@@ -54,7 +52,7 @@ const Login = () => {
           response.data.body.authToken
         )
         setIsLogginIn(false)
-        navigate('MainRouter')
+        await getCategories()
       } else {
         setIsLogginIn(false)
         toastShow('Falha ao efetuar login')

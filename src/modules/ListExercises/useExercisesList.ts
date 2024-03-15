@@ -12,7 +12,7 @@ const useExercisesList = (
   const [exercisesList, setExercisesList] = useState<ListedExercise[]>([])
   const [page, setPage] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
-
+  const [totalPages, setTotalPages] = useState(1)
   const [exerciciosSelecionados, setExerciciosSelecionados] = useState<
     ListedExercise[]
   >([])
@@ -59,6 +59,7 @@ const useExercisesList = (
       const { data } = await getAllExercises(query)
       if (data && data.body) {
         setExercisesList((prev) => [...prev, ...data.body.content])
+        setTotalPages(data.body.totalPages)
         setPage(data.body.number + 1)
       }
       setIsLoading(false)
@@ -86,6 +87,7 @@ const useExercisesList = (
   return {
     exercisesList,
     exerciciosSelecionados,
+    totalPages,
     isLoading,
     handleLoadMoreItems,
     page,

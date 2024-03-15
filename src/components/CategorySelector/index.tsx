@@ -49,6 +49,7 @@ const CategorySelector = ({
     >
       <Text style={styles.selectorText}>{tempLabel()}</Text>
       <CustomSelectorModal
+        isMultiple={false}
         labelSelector={fieldLabel}
         isModalOpen={isSelectorOpen}
         handleCloseSelector={() => {

@@ -9,8 +9,7 @@ const useStyles = () => {
       justifyContent: 'center',
       backgroundColor: defaults.corBackTextInput,
       paddingVertical: 6,
-      borderRadius: 4,
-      paddingHorizontal: 12
+      borderRadius: 4
     },
     selectorText: {
       fontSize: 15,

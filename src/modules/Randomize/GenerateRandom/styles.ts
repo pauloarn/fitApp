@@ -7,7 +7,6 @@ import { defaults } from '../../../defaults'
 
 export default StyleSheet.create({
   mainContainer: {
-    paddingTop: heightPercentageToDP('3%'),
     backgroundColor: defaults.corBackGround,
     width: wp('100%'),
     alignItems: 'center',
@@ -29,7 +28,7 @@ export default StyleSheet.create({
   },
   dropDownView: {
     height: heightPercentageToDP('5%'),
-    width: wp('60%'),
+    width: wp('80%'),
     marginBottom: heightPercentageToDP('2%')
   }
 })

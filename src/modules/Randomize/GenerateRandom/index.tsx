@@ -5,18 +5,18 @@ import { useState } from 'react'
 import { useAppSelector } from '../../../hooks/useRedux'
 import { FontAwesome5 } from '@expo/vector-icons'
 import { heightPercentageToDP } from 'react-native-responsive-screen'
-import Toast from 'react-native-root-toast'
 import { defaults } from '../../../defaults'
 import CustomNumberInput from '../../../components/CustomNumberInput'
 import { useNavigation } from '@react-navigation/core'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RandomTrainingRouter } from '../../../types/routes'
-import { Null } from '../../../types/genericTypes'
+import { Null, Undefined } from '../../../types/genericTypes'
 import useExerciseRoutineService from '../../../services/exerciseRoutine/exerciseRoutineService'
 
 const Randomize = () => {
-  const [grupoMuscularSelecionado, setGrupoMuscularSelecionado] =
-    useState<Null<number>>(null)
+  const [grupoMuscularSelecionado, setGrupoMuscularSelecionado] = useState<
+    number[]
+  >([])
   const [tipoEquipamentoSelecionado, setTipoEquipamentoSelecionado] =
     useState<Null<number>>(null)
   const [tipoTreinoSelecionado, setTipoTreinoSelecionado] =
@@ -25,45 +25,50 @@ const Randomize = () => {
   const [isLoading, setIsLoadin] = useState(false)
   const { navigate } =
     useNavigation<NativeStackNavigationProp<RandomTrainingRouter>>()
-  const [quantidadeExercicios, setQuantidadeExercicios] = useState<number>(5)
+  const [quantidadeExercicios, setQuantidadeExercicios] =
+    useState<Undefined<number>>(5)
   const { grupoMuscular, tipoTreino, tipoEquipamento } = useAppSelector(
     (state) => state.exercisesSlice
   )
 
-  const handleShuffleExercises = async () => {
-    if (!grupoMuscularSelecionado) {
-      Toast.show('Necessário selecionar um Grupo Muscular', {
-        duration: 1000
-      })
-      return
-    }
-    if (quantidadeExercicios <= 2) {
-      Toast.show('Quantidade de Exercicios deve ser maior que 2', {
-        duration: 1000
-      })
-      return
-    }
-    setIsLoadin(true)
-    const res = await createRandomRoutine({
-      amountOfExercises: quantidadeExercicios,
-      bodyPartId: grupoMuscularSelecionado,
-      exerciseTypeId: tipoTreinoSelecionado ?? undefined,
-      equipmentTypeId: tipoEquipamentoSelecionado ?? undefined
-    })
-    if (res.data?.body) {
-      setIsLoadin(false)
-      navigate('Visualizar', { treinoId: res.data?.body.routineId })
-      return
-    }
-    Toast.show('Falha ao gerar treino aleatório')
-    setIsLoadin(false)
-  }
+  // const handleShuffleExercises = async () => {
+  //   if (!grupoMuscularSelecionado) {
+  //     Toast.show('Necessário selecionar um Grupo Muscular', {
+  //       duration: 1000
+  //     })
+  //     return
+  //   }
+  //   if (quantidadeExercicios && quantidadeExercicios <= 2) {
+  //     Toast.show('Quantidade de Exercicios deve ser maior que 2', {
+  //       duration: 1000
+  //     })
+  //     return
+  //   }
+  //   setIsLoadin(true)
+  //   const res = await createRandomRoutine({
+  //     amountOfExercises: quantidadeExercicios || 5,
+  //     bodyPartId: grupoMuscularSelecionado,
+  //     exerciseTypeId: tipoTreinoSelecionado ?? undefined,
+  //     equipmentTypeId: tipoEquipamentoSelecionado ?? undefined
+  //   })
+  //   if (res.data?.body) {
+  //     setIsLoadin(false)
+  //     navigate('Visualizar', { treinoId: res.data?.body.routineId })
+  //     return
+  //   }
+  //   Toast.show('Falha ao gerar treino aleatório')
+  //   setIsLoadin(false)
+  // }
 
   const getButtonBackgroundColor = (): string => {
-    if (grupoMuscularSelecionado && quantidadeExercicios > 2) {
+    if (
+      grupoMuscularSelecionado &&
+      quantidadeExercicios &&
+      quantidadeExercicios > 2
+    ) {
       return defaults.corBotaoFab
     }
-    return 'darkcyan'
+    return 'grey'
   }
 
   return (
@@ -75,15 +80,18 @@ const Randomize = () => {
       </Text>
       <View style={styles.dropDownView}>
         <DropDown
-          selectedValue={grupoMuscularSelecionado}
+          isMultiple={true}
+          maxSelectSize={5}
+          selected={grupoMuscularSelecionado}
           onValueChange={setGrupoMuscularSelecionado}
-          label={'Grupo Muscular *'}
+          label={'Grupo Muscular (máximo 5)*'}
           items={grupoMuscular}
         />
       </View>
       <View style={styles.dropDownView}>
         <DropDown
-          selectedValue={tipoTreinoSelecionado}
+          isMultiple={false}
+          selected={tipoTreinoSelecionado}
           onValueChange={setTipoTreinoSelecionado}
           label={'Tipo Treino'}
           items={tipoTreino}
@@ -91,7 +99,8 @@ const Randomize = () => {
       </View>
       <View style={styles.dropDownView}>
         <DropDown
-          selectedValue={tipoEquipamentoSelecionado}
+          isMultiple={false}
+          selected={tipoEquipamentoSelecionado}
           onValueChange={setTipoEquipamentoSelecionado}
           label={'Tipo Equipamento'}
           items={tipoEquipamento}
@@ -121,7 +130,7 @@ const Randomize = () => {
             padding: 15,
             borderRadius: 30
           }}
-          onPress={handleShuffleExercises}
+          onPress={() => console.log('ihi')}
         >
           <FontAwesome5 name={'random'} color={'white'} size={30} />
         </TouchableOpacity>
