@@ -1,10 +1,22 @@
 import { Image, View } from 'react-native'
-import { ListedExercise } from '../../types/exercises'
+import { useEffect, useState } from 'react'
+import exercisesService from '../../services/exercises/exercisesService'
 
 interface GifComponentProps {
-  imageData: ListedExercise['imageData']
+  imageUrl: string
 }
-const GifComponent = ({ imageData }: GifComponentProps) => {
+
+const GifComponent = ({ imageUrl }: GifComponentProps) => {
+  const { getImageExercise } = exercisesService()
+
+  const [imgBase64, setImgBase64] = useState<string>()
+
+  useEffect(() => {
+    getImageExercise(imageUrl).then((res) => {
+      setImgBase64(res.data?.body)
+    })
+  }, [imageUrl])
+
   return (
     <View
       style={{
@@ -20,7 +32,7 @@ const GifComponent = ({ imageData }: GifComponentProps) => {
           height: 70
         }}
         source={{
-          uri: imageData.imageBase64
+          uri: `data:image/*;base64,${imgBase64}`
         }}
       />
     </View>

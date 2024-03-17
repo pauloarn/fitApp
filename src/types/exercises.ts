@@ -18,8 +18,5 @@ export interface ListedExercise {
   exerciseId: number
   name: string
   nome: string
-  imageData: {
-    imageBase64: string
-    imageType: string
-  }
+  imgUrl: string
 }

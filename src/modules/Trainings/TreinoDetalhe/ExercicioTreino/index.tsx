@@ -45,7 +45,7 @@ const ExercicioTreino = ({
       onPress={() => executaExercicio(exercicio)}
     >
       <View style={styles.gifContainer}>
-        <GifComponent imageData={exercicio.execise.imageData} />
+        <GifComponent imageUrl={exercicio.execise.imgUrl} />
       </View>
       <View style={styles.marcouContainer}>
         <MaterialCommunityIcons

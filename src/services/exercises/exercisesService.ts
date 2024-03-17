@@ -9,7 +9,12 @@ const exercisesService = makeService('exercises', ({ get }) => {
     return response
   }
 
-  return { getAllExercises }
+  const getImageExercise = (imgUrl: string) => {
+    const {response} = get<{ body: string }>(`/image?imgUrl=${imgUrl}`)
+    return response
+  }
+
+  return { getAllExercises, getImageExercise }
 })
 
 export default exercisesService

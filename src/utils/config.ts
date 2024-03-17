@@ -1,8 +1,8 @@
-const apiUrlEnv = process.env.API_URL
-const localStorageTokenName = process.env.LOCAL_STORAGE_TOKEN_VAR
+const apiUrlEnv = process.env.EXPO_PUBLIC_API_URL
+const localStorageTokenName = process.env.EXPO_PUBLIC_LOCAL_STORAGE_TOKEN_VAR
 
 const config = {
-  apiUrl: apiUrlEnv ?? 'http://192.168.0.26:8285',
+  apiUrl: apiUrlEnv,
   localStorageTokenName: localStorageTokenName ?? '@fit-app-local-token',
   pathApi: 'fit-app'
 }

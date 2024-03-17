@@ -31,7 +31,7 @@ const ExerciseCard = ({
             alignItems: 'flex-start'
           }}
         >
-          <GifComponent imageData={exercise.imageData} />
+          <GifComponent imageUrl={exercise.imgUrl} />
         </View>
         <View style={{ width: '60%' }}>
           <Text style={{ textAlign: 'center', color: `white` }}>
